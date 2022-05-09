@@ -1,4 +1,5 @@
 import random
+from ChessEngine import GameState
 
 piecesScore = {
     "K": 900, "Q": 90, "R": 50,
@@ -17,7 +18,7 @@ wK = [
 ]
 
 wQ = [
-    [-2, -1, -1, -0.5, -0,.5 -1, -1, -2],
+    [-2, -1, -1, -0.5, -0, .5 - 1, -1, -2],
     [-1, 0, 0, 0, 0, 0, 0, -1],
     [-1, 0, 0.5, 0.5, 0.5, 0.5, 0, -1],
     [-0.5, 0, 0.5, 0.5, 0.5, 0.5, 0, -0.5],
@@ -73,9 +74,64 @@ CHECKMATE = 1000
 STALEMATE = -1000
 DEPTH = 2
 
+MAX_PLAYER_WORST = -10000
+MIN_PLAYER_WORST = 10000
+
+#  TODO: Add terminal node checking to make sure we know the game ending
+
+# * ------------------- Code Refactor +  Alpha - beta pruning ----------------
+
+
+def isTerminalNode(gs: GameState):
+    return gs.checkEndGame()
+
+# TODO: Calculate heuristic for the node based on material and the game flow (Some combination of pieces position are more powerful than others)
+
+
+def calculateHeuristicScoreForNode(gs: GameState):
+    return gs.getScoreBoardValue()
+
+
+def getPossileNextMoves(gs: GameState):
+    return gs.getValidMoves()
+
+
+# TODO: For better performance we should not choose moves randomly when searching
+# TODO: ---> Move Order matters: Check for pawn structures + isolation + king postition + forks and pins
+# TODO: Below code is wrong in part that child is not a game state: GS = makeMove(currentGameState, child);
+def chessAlphaBeta(node: GameState, depth, alpha, beta, maximizingPlayer):
+    if depth == 0 or isTerminalNode(node):
+        return calculateHeuristicForNode(node)
+    if maximizingPlayer:
+        value = MAX_PLAYER_WORST
+        for move in node.getValidMoves():
+            node.makeMove(move)
+            value = max(value, chessAlphaBeta(
+                node, depth - 1, alpha, beta, False))
+            node.undoMove()
+            if(value >= beta):
+                break  # Beta cutofff
+            alpha = max(alpha, value)
+        return value
+    # * Min Player:
+    else:
+        value = MIN_PLAYER_WORST
+        for move in node.getValidMoves():
+            node.makeMove(move)
+            value = min(value, chessAlphaBeta(
+                node,  depth - 1, alpha, beta, True))
+            node.undoMove()
+            if value <= alpha:
+                break  # Alpha cutoff
+            beta = min(beta, value)
+        return value
+
+# * ----------------------------------------------------------- *
+
 
 def findRandomMove(validMoves):
     return validMoves[random.randint(0, len(validMoves) - 1)]
+
 
 def findBestMove(gs, validMoves):
     turnMultiplier = 1 if gs.whiteToMove else -1
@@ -103,11 +159,13 @@ def findBestMove(gs, validMoves):
         gs.undoMove()
     return bestPlayerMove
 
+
 def findBestMoveMinMax(gs, validMoves):
     global nextMove
     nextMove = None
     findMoveMinMax(gs, validMoves, DEPTH, gs.whiteToMove)
     return nextMove
+
 
 def findMoveMinMax(gs, validMoves, depth, whiteToMove):
     global nextMove
@@ -139,16 +197,20 @@ def findMoveMinMax(gs, validMoves, depth, whiteToMove):
                     nextMove = move
             gs.undoMove()
         return minScore
+
+
 '''
 >0 score -> good for white
 <0 score -> good for black
 '''
+
+
 def scoreBoard(gs):
     if gs.checkmate:
         if gs.whiteToMove:
-            return -CHECKMATE # black wins
+            return -CHECKMATE  # black wins
         else:
-            return CHECKMATE # white wins
+            return CHECKMATE  # white wins
     elif gs.stalemate:
         return STALEMATE
     score = 0
@@ -160,9 +222,11 @@ def scoreBoard(gs):
                 score -= piecesScore[square[1]]
     return score
 
+
 '''
 Score the board base on material
 '''
+
 
 def scoreMaterial(board):
     score = 0
