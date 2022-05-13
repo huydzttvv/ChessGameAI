@@ -77,7 +77,6 @@ DEPTH = 2
 MAX_PLAYER_WORST = -10000
 MIN_PLAYER_WORST = 10000
 
-#  TODO: Add terminal node checking to make sure we know the game ending
 
 # * ------------------- Code Refactor +  Alpha - beta pruning ----------------
 
