@@ -1,7 +1,9 @@
+from random import randint, random
 import pygame as p
 
 class GameState:
     def __init__(self):
+        # self.color = randint(0,1)
         
         self.board = [
             ['bR', 'bN', 'bB', 'bQ', 'bK', 'bB', 'bN', 'bR'],
@@ -12,6 +14,16 @@ class GameState:
             ['--', '--', '--', '--', '--', '--', '--', '--'],
             ['wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp'],
             ['wR', 'wN', 'wB', 'wQ', 'wK', 'wB', 'wN', 'wR']]
+        # if self.color == 1:
+        #     self.board = [
+        #         ['wR', 'wN', 'wB', 'wQ', 'wK', 'wB', 'wN', 'wR'],
+        #         ['wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp'],       
+        #         ['--', '--', '--', '--', '--', '--', '--', '--'],
+        #         ['--', '--', '--', '--', '--', '--', '--', '--'],
+        #         ['--', '--', '--', '--', '--', '--', '--', '--'],
+        #         ['--', '--', '--', '--', '--', '--', '--', '--'],
+        #         ['bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp'],
+        #         ['bR', 'bN', 'bB', 'bQ', 'bK', 'bB', 'bN', 'bR']]
         
         self.moveFunctions = {'p': self.getPawnMoves, 'R': self.getRookMoves, 'N': self.getKnightMoves,
                               'B': self.getBishopMoves, 'K': self.getKingMoves, 'Q': self.getQueenMoves}
@@ -30,6 +42,8 @@ class GameState:
                                              self.currentCastlingRight.wqs, self.currentCastlingRight.bqs)]
         self.checkmate = False
         self.stalemate = False
+        
+        
 
     def makeMove(self, move):
         self.board[move.startRow][move.startCol] = '--'

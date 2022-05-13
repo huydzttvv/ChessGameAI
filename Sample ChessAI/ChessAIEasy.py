@@ -71,37 +71,9 @@ wp = [
 
 CHECKMATE = 1000
 STALEMATE = -1000
-DEPTH = 2
+DEPTH = 1
 
 
-def findRandomMove(validMoves):
-    return validMoves[random.randint(0, len(validMoves) - 1)]
-
-def findBestMove(gs, validMoves):
-    turnMultiplier = 1 if gs.whiteToMove else -1
-    opponentMinMaxScore = CHECKMATE
-    bestPlayerMove = None
-    random.shuffle(validMoves)
-    for playerMove in validMoves:
-        gs.makeMove(playerMove)
-        opponentsMoves = gs.getValidMoves()
-        opponentMaxScore = -CHECKMATE
-        for opponentsMove in opponentsMoves:
-            gs.makeMove(opponentsMove)
-            if gs.checkmate:
-                score = -turnMultiplier * CHECKMATE
-            elif gs.stalemate:
-                score = STALEMATE
-            else:
-                score = -turnMultiplier * scoreMaterial(gs.board)
-            if score > opponentMaxScore:
-                opponentMaxScore = score
-            gs.undoMove()
-        if opponentMinMaxScore > opponentMaxScore:
-            opponentMinMaxScore = opponentMaxScore
-            bestPlayerMove = playerMove
-        gs.undoMove()
-    return bestPlayerMove
 
 def findBestMoveMinMax(gs, validMoves):
     global nextMove
@@ -139,51 +111,6 @@ def findMoveMinMax(gs, validMoves, depth, whiteToMove):
                     nextMove = move
             gs.undoMove()
         return minScore
-
-
-
-
-def findBestMoveMinMaxEasy(gs, validMoves):
-    global nextMove
-    nextMove = None
-    findMoveMinMaxEasy(gs, validMoves, 1, gs.whiteToMove)
-    return nextMove
-
-def findMoveMinMaxEasy(gs, validMoves, depth, whiteToMove):
-    global nextMove
-    if depth == 0:
-        return scoreMaterial(gs.board)
-    if whiteToMove:
-        maxScore = -CHECKMATE
-        random.shuffle(validMoves)
-        for move in validMoves:
-            gs.makeMove(move)
-            nextMoves = gs.getValidMoves()
-            score = findMoveMinMaxEasy(gs, nextMoves, depth-1, False)
-            if score > maxScore:
-                maxScore = score
-                if depth == 1:
-                    nextMove = move
-            gs.undoMove()
-        return maxScore
-    else:
-        minScore = CHECKMATE
-        random.shuffle(validMoves)
-        for move in validMoves:
-            gs.makeMove(move)
-            nextMoves = gs.getValidMoves()
-            score = findMoveMinMaxEasy(gs, nextMoves, depth-1, True)
-            if score < minScore:
-                minScore = score
-                if depth == 1:
-                    nextMove = move
-            gs.undoMove()
-        return minScore
-
-
-
-
-
 '''
 >0 score -> good for white
 <0 score -> good for black

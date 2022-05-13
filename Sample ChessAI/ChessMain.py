@@ -1,5 +1,9 @@
+from multiprocessing.connection import wait
+from random import randint
 import pygame as p
+from scipy import rand
 import ChessEngine
+import ChessAIEasy
 import ChessAI
 import time
 
@@ -14,6 +18,18 @@ DIMENSION = 8
 SQ_SIZE = (HEIGHT - 2 * BORDER - 2 * TIME) // DIMENSION
 MAX_FPS = 15
 IMAGES = {}
+COLORGAME = False
+# COLORFLAG = False
+
+# boardreverse = [
+#             ['wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp'],
+#             ['wR', 'wN', 'wB', 'wQ', 'wK', 'wB', 'wN', 'wR'],
+#             ['--', '--', '--', '--', '--', '--', '--', '--'],
+#             ['--', '--', '--', '--', '--', '--', '--', '--'],
+#             ['--', '--', '--', '--', '--', '--', '--', '--'],
+#             ['--', '--', '--', '--', '--', '--', '--', '--'],
+#             ['bR', 'bN', 'bB', 'bQ', 'bK', 'bB', 'bN', 'bR'],
+#             ['bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp']]
 
 def main():
     p.init()
@@ -23,6 +39,10 @@ def main():
     isPlaying = False   # Start a game
     playerOne = True
     playerTwo = True
+    playerAI = False
+    global COLORGAME 
+
+    
 
     # In Menu:
     while menuGame:
@@ -35,17 +55,24 @@ def main():
                 # print(location)
                 if 540 <= location[1] < 590:
                     # One Player
+                    # if 150 <= location[0] < 300:
+                    #     playerOne = True
+                    #     playerTwo = False
+                    #     COLORFLAG = True
                     if 300 <= location[0] < 450:
                         playerOne = True
                         playerTwo = False
+                        playerAI = False
                     # Two Player
                     elif 526 <= location[0] < 677:
                         playerOne = True
                         playerTwo = True
+                        playerAI = False
                     # None Player
                     elif 750 <= location[0] < 900:
                         playerOne = False
                         playerTwo = False
+                        playerAI = True
                     isPlaying = True    # Game start
                     menuGame = False
         p.display.flip()
@@ -53,6 +80,10 @@ def main():
     loadImages()        # Load images of pieces, board
     clock = p.time.Clock()
     gameState = ChessEngine.GameState()
+    
+    # EasyAI
+    # if gameState.color == 1:
+    #     gameState.board = boardreverse
     validMoves = gameState.getValidMoves()  # Get all the valid move
     moveMade = False    # Moving a piece
     gameOver = False
@@ -63,11 +94,13 @@ def main():
 
 
     while isPlaying:
+        time.sleep(0.2)
         start_time = time.time()    
         background = p.transform.scale(p.image.load("chessv2/menu.png"), (WIDTH, HEIGHT))
         screen.blit(background, (0, 0))
         # If player 1 turn and white turn or player 2 turn and black turn
         humanTurn = (gameState.whiteToMove and playerOne) or (not gameState.whiteToMove and playerTwo)
+        AIEasyTurn = (not gameState.whiteToMove and playerAI)
         for e in p.event.get():
             if e.type == p.QUIT:
                 isPlaying = False
@@ -84,33 +117,51 @@ def main():
                         # Start a new 1 player game 
                         if 150 <= location[1] < 200:
                             gameState = ChessEngine.GameState()
+
+                            # global COLORGAME 
+                            COLORGAME = not COLORGAME
+                            loadImages() 
+
                             validMoves = gameState.getValidMoves()  # Get all the valid move
                             moveMade = False    # Moving a piece
                             gameOver = False
                             playerOne = True
                             playerTwo = False
+                            playerAI = False
                             p1Time = p2Time = 1800
                             humanTurn = (gameState.whiteToMove and playerOne) or (not gameState.whiteToMove and playerTwo)
                             drawGameState(screen, gameState, gameState.getValidMoves(), sqSelected)
                         # Start a new 2 player game 
                         if 230 <= location[1] < 280:
                             gameState = ChessEngine.GameState()
+
+                            # global COLORGAME 
+                            COLORGAME = not COLORGAME
+                            loadImages() 
+
                             validMoves = gameState.getValidMoves()  # Get all the valid move
                             moveMade = False    # Moving a piece
                             gameOver = False
                             playerOne = True
                             playerTwo = True
+                            playerAI = False
                             p1Time = p2Time = 1800
                             humanTurn = (gameState.whiteToMove and playerOne) or (not gameState.whiteToMove and playerTwo)
                             drawGameState(screen, gameState, gameState.getValidMoves(), sqSelected)
                         # Start a new none player game 
                         if 330 <= location[1] < 380:
                             gameState = ChessEngine.GameState()
+
+                            # global COLORGAME 
+                            COLORGAME = not COLORGAME
+                            loadImages() 
+
                             validMoves = gameState.getValidMoves()  # Get all the valid move
                             moveMade = False    # Moving a piece
                             gameOver = False
                             playerOne = False
                             playerTwo = False
+                            playerAI = True
                             p1Time = p2Time = 1800
                             drawGameState(screen, gameState, gameState.getValidMoves(), sqSelected)
                         # Undo
@@ -172,7 +223,12 @@ def main():
                     gameOver = False
         # ChessAI turn
         if not gameOver and not humanTurn and motlan:
-            move = ChessAI.findBestMoveMinMax(gameState, validMoves)
+            # move = ChessAI.findBestMoveMinMax(gameState, validMoves)
+            if AIEasyTurn:
+                move = ChessAIEasy.findBestMoveMinMax(gameState, validMoves)
+                # time.sleep(0.5)
+            elif not AIEasyTurn:
+                move = ChessAI.findBestMoveMinMax(gameState, validMoves)
             if move is None:
                 move = ChessAI.findRandomMove(validMoves)
             gameState.makeMove(move)
@@ -213,9 +269,17 @@ def main():
         if gameState.checkmate:
             gameOver = True
             gameOverText(screen, gameState.whiteToMove)
+            # if gameState.color == 1:
+            #     gameOverText(screen, gameState.whiteToMove)
+            # else:
+            #     gameOverText(screen, ~gameState.whiteToMove)
         elif gameState.stalemate:
             gameOver = True
             gameOverText(screen, gameState.whiteToMove)
+            # if gameState.color == 1:
+            #     gameOverText(screen, gameState.whiteToMove)
+            # else:
+            #     gameOverText(screen, ~gameState.whiteToMove)
         if gameState.whiteToMove:
             p1Time -= time.time() - start_time if p1Time > 0 else 0
         else:
@@ -235,7 +299,15 @@ def loadImages():
     pieces = ['bR', 'bN', 'bB', 'bQ', 'bK', 'bp', 'wB', 'wN', 'wR', 'wQ', 'wK', 'wp']
     blocks = ['blackBlock', 'whiteBlock', 'blackBlock1', 'whiteBlock1', 'highlightBlock']
     for piece in pieces:
-        IMAGES[piece] = p.transform.scale(p.image.load("chessOri/" + piece + ".png"), (SQ_SIZE, SQ_SIZE))
+        # IMAGES[piece] = p.transform.scale(p.image.load("chessOri/" + piece + ".png"), (SQ_SIZE, SQ_SIZE))
+
+        if COLORGAME:
+            IMAGES[piece] = p.transform.scale(p.image.load("chessOri2/" + piece + ".png"), (SQ_SIZE, SQ_SIZE))
+        else:
+            IMAGES[piece] = p.transform.scale(p.image.load("chessOri/" + piece + ".png"), (SQ_SIZE, SQ_SIZE))
+
+
+
         # IMAGES[piece + "l"] = p.transform.scale(p.image.load("images/" + piece + "l.png"), (SQ_SIZE, SQ_SIZE))
     for block in blocks:
         IMAGES[block] = p.transform.scale(p.image.load("images/" + block + ".png"), (SQ_SIZE, SQ_SIZE))
@@ -347,7 +419,13 @@ def drawTime(screen, p1time, p2time, whiteToMove, gameOver):
 def gameOverText(screen, whiteToMove):
     color = p.Color('#121212') if whiteToMove else p.Color('#D9D2D2')
     font = p.font.Font('freesansbold.ttf', 100)
-    winner = "Black Win!" if whiteToMove else "White Win!"
+    # winner = "Black Win!" if whiteToMove else "White Win!"
+
+    if COLORGAME :
+        winner = "White Win!" if whiteToMove else "Black Win!"
+    else:
+        winner = "Black Win!" if whiteToMove else "White Win!"
+
     textObj = font.render(winner, True, color)
     textLocation = p.Rect(SQ_SIZE * 4 + BORDER - textObj.get_width() / 2 + MENU,
                           SQ_SIZE * 4 + BORDER + TIME - textObj.get_height() / 2, 60, 60)
