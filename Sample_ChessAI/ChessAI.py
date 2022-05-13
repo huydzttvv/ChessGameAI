@@ -84,6 +84,7 @@ MIN_PLAYER_WORST = 10000
 def isTerminalNode(gs: GameState):
     return gs.checkEndGame()
 
+
 # TODO: Calculate heuristic for the node based on material and the game flow (Some combination of pieces position are more powerful than others)
 
 
@@ -100,7 +101,7 @@ def getPossileNextMoves(gs: GameState):
 # TODO: Below code is wrong in part that child is not a game state: GS = makeMove(currentGameState, child);
 def chessAlphaBeta(node: GameState, depth, alpha, beta, maximizingPlayer):
     if depth == 0 or isTerminalNode(node):
-        return calculateHeuristicForNode(node)
+        return calculateHeuristicScoreForNode(node)
     if maximizingPlayer:
         value = MAX_PLAYER_WORST
         for move in node.getValidMoves():
@@ -108,7 +109,7 @@ def chessAlphaBeta(node: GameState, depth, alpha, beta, maximizingPlayer):
             value = max(value, chessAlphaBeta(
                 node, depth - 1, alpha, beta, False))
             node.undoMove()
-            if(value >= beta):
+            if (value >= beta):
                 break  # Beta cutofff
             alpha = max(alpha, value)
         return value
@@ -118,12 +119,13 @@ def chessAlphaBeta(node: GameState, depth, alpha, beta, maximizingPlayer):
         for move in node.getValidMoves():
             node.makeMove(move)
             value = min(value, chessAlphaBeta(
-                node,  depth - 1, alpha, beta, True))
+                node, depth - 1, alpha, beta, True))
             node.undoMove()
             if value <= alpha:
                 break  # Alpha cutoff
             beta = min(beta, value)
         return value
+
 
 # * ----------------------------------------------------------- *
 
@@ -176,7 +178,7 @@ def findMoveMinMax(gs, validMoves, depth, whiteToMove):
         for move in validMoves:
             gs.makeMove(move)
             nextMoves = gs.getValidMoves()
-            score = findMoveMinMax(gs, nextMoves, depth-1, False)
+            score = findMoveMinMax(gs, nextMoves, depth - 1, False)
             if score > maxScore:
                 maxScore = score
                 if depth == DEPTH:
@@ -189,10 +191,49 @@ def findMoveMinMax(gs, validMoves, depth, whiteToMove):
         for move in validMoves:
             gs.makeMove(move)
             nextMoves = gs.getValidMoves()
-            score = findMoveMinMax(gs, nextMoves, depth-1, True)
+            score = findMoveMinMax(gs, nextMoves, depth - 1, True)
             if score < minScore:
                 minScore = score
                 if depth == DEPTH:
+                    nextMove = move
+            gs.undoMove()
+        return minScore
+
+
+def findBestMoveMinMaxEasy(gs, validMoves):
+    global nextMove
+    nextMove = None
+    findMoveMinMaxEasy(gs, validMoves, 1, gs.whiteToMove)
+    return nextMove
+
+
+def findMoveMinMaxEasy(gs, validMoves, depth, whiteToMove):
+    global nextMove
+    if depth == 0:
+        return scoreMaterial(gs.board)
+    if whiteToMove:
+        maxScore = -CHECKMATE
+        random.shuffle(validMoves)
+        for move in validMoves:
+            gs.makeMove(move)
+            nextMoves = gs.getValidMoves()
+            score = findMoveMinMaxEasy(gs, nextMoves, depth - 1, False)
+            if score > maxScore:
+                maxScore = score
+                if depth == 1:
+                    nextMove = move
+            gs.undoMove()
+        return maxScore
+    else:
+        minScore = CHECKMATE
+        random.shuffle(validMoves)
+        for move in validMoves:
+            gs.makeMove(move)
+            nextMoves = gs.getValidMoves()
+            score = findMoveMinMaxEasy(gs, nextMoves, depth - 1, True)
+            if score < minScore:
+                minScore = score
+                if depth == 1:
                     nextMove = move
             gs.undoMove()
         return minScore
