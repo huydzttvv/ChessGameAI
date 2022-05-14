@@ -227,7 +227,8 @@ def main():
         if not gameOver and not humanTurn and motlan:
             # move = ChessAI.findBestMoveMinMax(gameState, validMoves)
             if AIEasyTurn:
-                move = ChessAIEasy.findBestMoveMinMax(gameState, validMoves)
+                # move = ChessAIEasy.findBestMoveMinMax(gameState, validMoves)
+                move = ChessAI.move_with_strategy(gameState)
                 # time.sleep(0.5)
             elif not AIEasyTurn:
                 move = ChessAI.findBestMoveMinMax(gameState, validMoves)
