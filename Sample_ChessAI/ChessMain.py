@@ -61,7 +61,6 @@ def main(auto_mode=SCREEN_MODE, mode=EASY_MODE, player_option=OUR_AI_WHITE):
     mode = mode
     player_option = player_option
     strategy = ChessAI.MIN_MAX_WITHOUT_PRUNING
-    # if not auto_mode
     # In Menu:
     if auto_mode == SCREEN_MODE:
         while menuGame:
@@ -268,94 +267,94 @@ def main(auto_mode=SCREEN_MODE, mode=EASY_MODE, player_option=OUR_AI_WHITE):
                     gameOver = False
     ######################################################################################
     # ChessAI turn
-    if not gameOver and not humanTurn and motlan:
-        # move = ChessAI.findBestMoveMinMax(gameState, validMoves)
-        depth = 2
-        if mode == EASY_MODE:
-            depth = 1
-        elif mode == MEDIUM_MODE:
+        if not gameOver and not humanTurn and motlan:
+            # move = ChessAI.findBestMoveMinMax(gameState, validMoves)
             depth = 2
-        elif mode == HARD_MODE:
-            depth = 3
+            if mode == EASY_MODE:
+                depth = 1
+            elif mode == MEDIUM_MODE:
+                depth = 2
+            elif mode == HARD_MODE:
+                depth = 3
 
-        print(f"RUNNING GAME WITH: MODE = {mode}  | STRATEGY = {strategy}")
-        # Opponent AI
-        if AIEasyTurn:
-            move = ChessAI.move_with_strategy(gs=gameState, depth=1, strategy=strategy)
-            # time.sleep(0.5)
-        # Our AI Agent
-        elif not AIEasyTurn:
-            move = ChessAI.move_with_strategy(gameState, depth, strategy)
+            print(f"RUNNING GAME WITH:AUTO_MODE = {auto_mode}  | MODE = {mode}  | STRATEGY = {strategy}")
+            # Opponent AI
+            if AIEasyTurn:
+                move = ChessAI.move_with_strategy(gs=gameState, depth=1, strategy=strategy)
+                # time.sleep(0.5)
+            # Our AI Agent
+            elif not AIEasyTurn:
+                move = ChessAI.move_with_strategy(gameState, depth, strategy)
 
-        # if AIEasyTurn:
-        #     move = ChessAIEasy.findBestMoveMinMax(gameState, validMoves)
-        #     # time.sleep(0.5)
-        # elif not AIEasyTurn:
-        #     move = ChessAI.findBestMoveMinMax(gameState, validMoves)
+            # if AIEasyTurn:
+            #     move = ChessAIEasy.findBestMoveMinMax(gameState, validMoves)
+            #     # time.sleep(0.5)
+            # elif not AIEasyTurn:
+            #     move = ChessAI.findBestMoveMinMax(gameState, validMoves)
 
-        # if AILEVEL == MEDIUM_MODE:
-        #     move = ChessAI.findBestMoveMinMax(gameState, validMoves)
-        # else:
-        #     move = ChessAIEasy.findBestMoveMinMax(gameState, validMoves)
+            # if AILEVEL == MEDIUM_MODE:
+            #     move = ChessAI.findBestMoveMinMax(gameState, validMoves)
+            # else:
+            #     move = ChessAIEasy.findBestMoveMinMax(gameState, validMoves)
 
-        if move is None:
-            move = ChessAI.findRandomMove(validMoves)
-        gameState.makeMove(move)
-        moveMade = True
+            if move is None:
+                move = ChessAI.findRandomMove(validMoves)
+            gameState.makeMove(move)
+            moveMade = True
 
-    if moveMade:
-        validMoves = gameState.getValidMoves()
-        moveMade = False
+        if moveMade:
+            validMoves = gameState.getValidMoves()
+            moveMade = False
 
-    drawGameState(screen, gameState, gameState.getValidMoves(), sqSelected)
+        drawGameState(screen, gameState, gameState.getValidMoves(), sqSelected)
 
-    if not gameState.promotionDone:
-        if motlan:
-            gameState.whiteToMove = not gameState.whiteToMove
-            motlan = False
-        board = p.transform.scale(p.image.load("chessv2/pawnPromotion.png"), (WIDTH, HEIGHT))
-        screen.blit(board, (0, 0))
-        for e in p.event.get():
-            if e.type == p.MOUSEBUTTONDOWN:
-                location = p.mouse.get_pos()
-                x = location[0]
-                y = location[1]
-                if 310 <= y < 396:
-                    if 217 <= x < 298:
-                        gameState.pawnPromotion('B')
-                        motlan = True
-                    if 350 <= x < 427:
-                        gameState.pawnPromotion('N')
-                        motlan = True
-                    if 488 <= x < 583:
-                        gameState.pawnPromotion('Q')
-                        motlan = True
-                    if 631 <= x < 707:
-                        gameState.pawnPromotion('R')
-                        motlan = True
+        if not gameState.promotionDone:
+            if motlan:
+                gameState.whiteToMove = not gameState.whiteToMove
+                motlan = False
+            board = p.transform.scale(p.image.load("chessv2/pawnPromotion.png"), (WIDTH, HEIGHT))
+            screen.blit(board, (0, 0))
+            for e in p.event.get():
+                if e.type == p.MOUSEBUTTONDOWN:
+                    location = p.mouse.get_pos()
+                    x = location[0]
+                    y = location[1]
+                    if 310 <= y < 396:
+                        if 217 <= x < 298:
+                            gameState.pawnPromotion('B')
+                            motlan = True
+                        if 350 <= x < 427:
+                            gameState.pawnPromotion('N')
+                            motlan = True
+                        if 488 <= x < 583:
+                            gameState.pawnPromotion('Q')
+                            motlan = True
+                        if 631 <= x < 707:
+                            gameState.pawnPromotion('R')
+                            motlan = True
 
-    if gameState.checkmate:
-        gameOver = True
-        gameOverText(screen, gameState.whiteToMove)
-        # if gameState.color == 1:
-        #     gameOverText(screen, gameState.whiteToMove)
-        # else:
-        #     gameOverText(screen, ~gameState.whiteToMove)
-    elif gameState.stalemate:
-        gameOver = True
-        gameOverText(screen, gameState.whiteToMove)
-        # if gameState.color == 1:
-        #     gameOverText(screen, gameState.whiteToMove)
-        # else:
-        #     gameOverText(screen, ~gameState.whiteToMove)
-    if gameState.whiteToMove:
-        p1Time -= time.time() - start_time if p1Time > 0 else 0
-    else:
-        p2Time -= time.time() - start_time if p2Time > 0 else 0
-    # remain_time = TIME_LIMIT - int(time.time() - start_time)
-    gameOver = drawTime(screen, int(p1Time), int(p2Time), gameState.whiteToMove, gameOver)
-    clock.tick(MAX_FPS)
-    p.display.flip()
+        if gameState.checkmate:
+            gameOver = True
+            gameOverText(screen, gameState.whiteToMove)
+            # if gameState.color == 1:
+            #     gameOverText(screen, gameState.whiteToMove)
+            # else:
+            #     gameOverText(screen, ~gameState.whiteToMove)
+        elif gameState.stalemate:
+            gameOver = True
+            gameOverText(screen, gameState.whiteToMove)
+            # if gameState.color == 1:
+            #     gameOverText(screen, gameState.whiteToMove)
+            # else:
+            #     gameOverText(screen, ~gameState.whiteToMove)
+        if gameState.whiteToMove:
+            p1Time -= time.time() - start_time if p1Time > 0 else 0
+        else:
+            p2Time -= time.time() - start_time if p2Time > 0 else 0
+        # remain_time = TIME_LIMIT - int(time.time() - start_time)
+        gameOver = drawTime(screen, int(p1Time), int(p2Time), gameState.whiteToMove, gameOver)
+        clock.tick(MAX_FPS)
+        p.display.flip()
 
 
 '''
