@@ -1,3 +1,4 @@
+import enum
 from multiprocessing.connection import wait
 from random import randint
 import pygame as p
@@ -6,6 +7,12 @@ import ChessEngine
 import ChessAIEasy
 import ChessAI
 import time
+import sys
+
+EASY_MODE = "EASY" 
+MEDIUM_MODE = "MEDIUM" 
+HARD_MODE = "HARD" 
+
 
 TIME = 48
 BORDER = 32
@@ -19,6 +26,12 @@ SQ_SIZE = (HEIGHT - 2 * BORDER - 2 * TIME) // DIMENSION
 MAX_FPS = 15
 IMAGES = {}
 COLORGAME = False
+
+AILEVEL = True
+
+
+FISRTMOVE = True
+
 # COLORFLAG = False
 
 # boardreverse = [
@@ -41,6 +54,7 @@ def main():
     playerTwo = True
     playerAI = False
     global COLORGAME 
+    global FISRTMOVE
 
     
 
@@ -151,9 +165,11 @@ def main():
                         # Start a new none player game 
                         if 330 <= location[1] < 380:
                             gameState = ChessEngine.GameState()
-
+                            # gameState.whiteToMove = bool(random.getrandbits(1))
                             # global COLORGAME 
                             COLORGAME = not COLORGAME
+                            FISRTMOVE = not FISRTMOVE
+                            gameState.whiteToMove = FISRTMOVE
                             loadImages() 
 
                             validMoves = gameState.getValidMoves()  # Get all the valid move
@@ -224,11 +240,27 @@ def main():
         # ChessAI turn
         if not gameOver and not humanTurn and motlan:
             # move = ChessAI.findBestMoveMinMax(gameState, validMoves)
+            depth = 2
+            
             if AIEasyTurn:
                 move = ChessAIEasy.findBestMoveMinMax(gameState, validMoves)
                 # time.sleep(0.5)
             elif not AIEasyTurn:
                 move = ChessAI.findBestMoveMinMax(gameState, validMoves)
+            
+            
+            # if AIEasyTurn:
+            #     move = ChessAIEasy.findBestMoveMinMax(gameState, validMoves)
+            #     # time.sleep(0.5)
+            # elif not AIEasyTurn:
+            #     move = ChessAI.findBestMoveMinMax(gameState, validMoves)
+                
+                # if AILEVEL == MEDIUM_MODE:
+                #     move = ChessAI.findBestMoveMinMax(gameState, validMoves)
+                # else:
+                #     move = ChessAIEasy.findBestMoveMinMax(gameState, validMoves)
+                    
+                    
             if move is None:
                 move = ChessAI.findRandomMove(validMoves)
             gameState.makeMove(move)
@@ -304,6 +336,7 @@ def loadImages():
         if COLORGAME:
             IMAGES[piece] = p.transform.scale(p.image.load("chessOri2/" + piece + ".png"), (SQ_SIZE, SQ_SIZE))
         else:
+            # IMAGES[piece] = p.transform.scale(p.image.load("chessOri/" + piece + ".png"), (SQ_SIZE, SQ_SIZE))
             IMAGES[piece] = p.transform.scale(p.image.load("chessOri/" + piece + ".png"), (SQ_SIZE, SQ_SIZE))
 
 
@@ -461,4 +494,9 @@ def drawMoveLog(screen, gs):
 
 
 if __name__ == "__main__":
-    main()
+    # global AILEVEL
+    if len(sys.argv) >= 2:
+        AILEVEL = sys.argv[1]
+        
+        main()
+    
