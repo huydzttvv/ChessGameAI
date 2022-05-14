@@ -1,3 +1,4 @@
+import os
 from multiprocessing.connection import wait
 from random import randint
 import pygame as p
@@ -19,6 +20,8 @@ SQ_SIZE = (HEIGHT - 2 * BORDER - 2 * TIME) // DIMENSION
 MAX_FPS = 15
 IMAGES = {}
 COLORGAME = False
+
+
 # COLORFLAG = False
 
 # boardreverse = [
@@ -36,13 +39,11 @@ def main():
     screen = p.display.set_mode((WIDTH, HEIGHT))
     p.display.set_caption("Auto Chess", "None")
     menuGame = True
-    isPlaying = False   # Start a game
+    isPlaying = False  # Start a game
     playerOne = True
     playerTwo = True
     playerAI = False
-    global COLORGAME 
-
-    
+    global COLORGAME
 
     # In Menu:
     while menuGame:
@@ -73,29 +74,28 @@ def main():
                         playerOne = False
                         playerTwo = False
                         playerAI = True
-                    isPlaying = True    # Game start
+                    isPlaying = True  # Game start
                     menuGame = False
         p.display.flip()
-    
-    loadImages()        # Load images of pieces, board
+
+    loadImages()  # Load images of pieces, board
     clock = p.time.Clock()
     gameState = ChessEngine.GameState()
-    
+
     # EasyAI
     # if gameState.color == 1:
     #     gameState.board = boardreverse
     validMoves = gameState.getValidMoves()  # Get all the valid move
-    moveMade = False    # Moving a piece
+    moveMade = False  # Moving a piece
     gameOver = False
     sqSelected = ()  # Square player selected (tuple)
     playerClicks = []  # keep track of player clicks (2 tuples: [(6, 4), (4, 4)]
     p1Time = p2Time = 1800
     motlan = True
 
-
     while isPlaying:
         time.sleep(0.2)
-        start_time = time.time()    
+        start_time = time.time()
         background = p.transform.scale(p.image.load("chessv2/menu.png"), (WIDTH, HEIGHT))
         screen.blit(background, (0, 0))
         # If player 1 turn and white turn or player 2 turn and black turn
@@ -120,16 +120,17 @@ def main():
 
                             # global COLORGAME 
                             COLORGAME = not COLORGAME
-                            loadImages() 
+                            loadImages()
 
                             validMoves = gameState.getValidMoves()  # Get all the valid move
-                            moveMade = False    # Moving a piece
+                            moveMade = False  # Moving a piece
                             gameOver = False
                             playerOne = True
                             playerTwo = False
                             playerAI = False
                             p1Time = p2Time = 1800
-                            humanTurn = (gameState.whiteToMove and playerOne) or (not gameState.whiteToMove and playerTwo)
+                            humanTurn = (gameState.whiteToMove and playerOne) or (
+                                    not gameState.whiteToMove and playerTwo)
                             drawGameState(screen, gameState, gameState.getValidMoves(), sqSelected)
                         # Start a new 2 player game 
                         if 230 <= location[1] < 280:
@@ -137,16 +138,17 @@ def main():
 
                             # global COLORGAME 
                             COLORGAME = not COLORGAME
-                            loadImages() 
+                            loadImages()
 
                             validMoves = gameState.getValidMoves()  # Get all the valid move
-                            moveMade = False    # Moving a piece
+                            moveMade = False  # Moving a piece
                             gameOver = False
                             playerOne = True
                             playerTwo = True
                             playerAI = False
                             p1Time = p2Time = 1800
-                            humanTurn = (gameState.whiteToMove and playerOne) or (not gameState.whiteToMove and playerTwo)
+                            humanTurn = (gameState.whiteToMove and playerOne) or (
+                                    not gameState.whiteToMove and playerTwo)
                             drawGameState(screen, gameState, gameState.getValidMoves(), sqSelected)
                         # Start a new none player game 
                         if 330 <= location[1] < 380:
@@ -154,10 +156,10 @@ def main():
 
                             # global COLORGAME 
                             COLORGAME = not COLORGAME
-                            loadImages() 
+                            loadImages()
 
                             validMoves = gameState.getValidMoves()  # Get all the valid move
-                            moveMade = False    # Moving a piece
+                            moveMade = False  # Moving a piece
                             gameOver = False
                             playerOne = False
                             playerTwo = False
@@ -179,14 +181,14 @@ def main():
                         if 516 <= location[1] < 569:
                             gameState = ChessEngine.GameState()
                             validMoves = gameState.getValidMoves()  # Get all the valid move
-                            moveMade = False    # Moving a piece
+                            moveMade = False  # Moving a piece
                             gameOver = False
                             p1Time = p2Time = 1800
                             drawGameState(screen, gameState, gameState.getValidMoves(), sqSelected)
                     # Mouse in board and it's human turn
                     if MENU + BORDER <= location[0] < MENU + BORDER + BOARD \
-                        and 80 <= location[1] < 720\
-                        and not gameOver and humanTurn:
+                            and 80 <= location[1] < 720 \
+                            and not gameOver and humanTurn:
                         col = (location[0] - BORDER - MENU) // SQ_SIZE
                         row = (location[1] - BORDER - TIME) // SQ_SIZE
                         # Deselect square if click 2 time on a same square
@@ -204,7 +206,7 @@ def main():
                                     # print(str(move.pieceMoved)+str((move.startRow, move.startCol))+str((move.endRow, move.endCol
                                     gameState.makeMove(validMoves[i])
                                     moveMade = True
-                                    #reset the sqSel, playerClicks
+                                    # reset the sqSel, playerClicks
                                     sqSelected = ()
                                     playerClicks = []
                                     start_time = time.time()
@@ -239,7 +241,7 @@ def main():
             moveMade = False
 
         drawGameState(screen, gameState, gameState.getValidMoves(), sqSelected)
-        
+
         if not gameState.promotionDone:
             if motlan:
                 gameState.whiteToMove = not gameState.whiteToMove
@@ -249,22 +251,21 @@ def main():
             for e in p.event.get():
                 if e.type == p.MOUSEBUTTONDOWN:
                     location = p.mouse.get_pos()
-                    x = location[0] 
+                    x = location[0]
                     y = location[1]
                     if 310 <= y < 396:
-                        if 217<=x<298:
+                        if 217 <= x < 298:
                             gameState.pawnPromotion('B')
                             motlan = True
-                        if 350<=x<427:
+                        if 350 <= x < 427:
                             gameState.pawnPromotion('N')
                             motlan = True
-                        if 488<=x<583:
+                        if 488 <= x < 583:
                             gameState.pawnPromotion('Q')
                             motlan = True
-                        if 631<=x<707:
+                        if 631 <= x < 707:
                             gameState.pawnPromotion('R')
                             motlan = True
-                
 
         if gameState.checkmate:
             gameOver = True
@@ -306,11 +307,10 @@ def loadImages():
         else:
             IMAGES[piece] = p.transform.scale(p.image.load("chessOri/" + piece + ".png"), (SQ_SIZE, SQ_SIZE))
 
-
-
         # IMAGES[piece + "l"] = p.transform.scale(p.image.load("images/" + piece + "l.png"), (SQ_SIZE, SQ_SIZE))
     for block in blocks:
-        IMAGES[block] = p.transform.scale(p.image.load("images/" + block + ".png"), (SQ_SIZE, SQ_SIZE))
+        image_path = os.path.join(os.curdir, "images", block + ".png")
+        IMAGES[block] = p.transform.scale(p.image.load(image_path), (SQ_SIZE, SQ_SIZE))
 
 
 def drawMenuState(screen):
@@ -421,7 +421,7 @@ def gameOverText(screen, whiteToMove):
     font = p.font.Font('freesansbold.ttf', 100)
     # winner = "Black Win!" if whiteToMove else "White Win!"
 
-    if COLORGAME :
+    if COLORGAME:
         winner = "White Win!" if whiteToMove else "Black Win!"
     else:
         winner = "Black Win!" if whiteToMove else "White Win!"
@@ -433,8 +433,9 @@ def gameOverText(screen, whiteToMove):
 
 
 def drawMoveLog(screen, gs):
-    font = p.font.Font('.\Font\seguisym.ttf', 16)
-    moveLogRect = p.Rect(MENU + BOARD + BORDER * 2 + 20, TIME + 10, MOVE_LOG, BORDER*2 + BOARD)
+    font_path = os.path.join(os.curdir, "Font", "seguisym.ttf")
+    font = p.font.Font(font_path, 16)
+    moveLogRect = p.Rect(MENU + BOARD + BORDER * 2 + 20, TIME + 10, MOVE_LOG, BORDER * 2 + BOARD)
     # p.draw.rect(screen, p.Color('Black'), moveLogRect)
     moveLog = gs.moveLog
     moveTexts = []

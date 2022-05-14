@@ -1,10 +1,11 @@
 from random import randint, random
 import pygame as p
 
+
 class GameState:
     def __init__(self):
         # self.color = randint(0,1)
-        
+
         self.board = [
             ['bR', 'bN', 'bB', 'bQ', 'bK', 'bB', 'bN', 'bR'],
             ['bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp'],
@@ -24,26 +25,50 @@ class GameState:
         #         ['--', '--', '--', '--', '--', '--', '--', '--'],
         #         ['bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp'],
         #         ['bR', 'bN', 'bB', 'bQ', 'bK', 'bB', 'bN', 'bR']]
-        
+
         self.moveFunctions = {'p': self.getPawnMoves, 'R': self.getRookMoves, 'N': self.getKnightMoves,
                               'B': self.getBishopMoves, 'K': self.getKingMoves, 'Q': self.getQueenMoves}
-        self.whiteToMove = True     # White turn or not
-        self.moveLog = []           
+        self.whiteToMove = True  # White turn or not
+        self.moveLog = []
         self.whiteKingLocation = (7, 4)
         self.blackKingLocation = (0, 4)
-        self.inCheck = False        
+        self.inCheck = False
         self.pins = []
         self.checks = []
         self.promotionDone = True
         self.enPassantPossible = ()  # coordinates for the square where en passant capture is possible
-        self.enPassantPossibleLog = [self.enPassantPossible]  
+        self.enPassantPossibleLog = [self.enPassantPossible]
         self.currentCastlingRight = CastleRights(True, True, True, True)
         self.castleRightsLog = [CastleRights(self.currentCastlingRight.wks, self.currentCastlingRight.bks,
                                              self.currentCastlingRight.wqs, self.currentCastlingRight.bqs)]
         self.checkmate = False
         self.stalemate = False
-        
-        
+
+    def check_game_ended(self):
+        return self.checkmate or self.stalemate
+
+    def get_board_score_value(self):
+        from Sample_ChessAI.ChessAIEasy import CHECKMATE
+        from Sample_ChessAI.ChessAIEasy import STALEMATE
+        from Sample_ChessAI.ChessAIEasy import piecesScore
+        if self.checkmate and self.whiteToMove:
+            return 10000
+
+        if self.checkmate:
+            if self.whiteToMove:
+                return -CHECKMATE  # black wins
+            else:
+                return CHECKMATE  # white wins
+        elif self.stalemate:
+            return STALEMATE
+        score = 0
+        for row in self.board:
+            for square in row:
+                if square[0] == 'w':
+                    score += piecesScore[square[1]]
+                elif square[0] == 'b':
+                    score -= piecesScore[square[1]]
+        return score
 
     def makeMove(self, move):
         self.board[move.startRow][move.startCol] = '--'
@@ -57,10 +82,10 @@ class GameState:
             self.blackKingLocation = (move.endRow, move.endCol)
         # Pawn promotion
         elif move.pieceMoved == 'wp' and move.endRow == 0:
-            self.eR, self.eC, self.sR, self.sC = move.endRow, move.endCol, move.startRow, move.startCol 
+            self.eR, self.eC, self.sR, self.sC = move.endRow, move.endCol, move.startRow, move.startCol
             self.promotionDone = False
         elif move.pieceMoved == 'bp' and move.endRow == 7:
-            self.eR, self.eC, self.sR, self.sC = move.endRow, move.endCol, move.startRow, move.startCol 
+            self.eR, self.eC, self.sR, self.sC = move.endRow, move.endCol, move.startRow, move.startCol
             self.promotionDone = False
         # update en passant possible
         if move.pieceMoved[1] == 'p' and abs(move.startRow - move.endRow) == 2:
@@ -147,8 +172,6 @@ class GameState:
                 self.currentCastlingRight.wqs = False
             elif move.endCol == 0:
                 self.currentCastlingRight.wks = False
-
-
 
     '''
     All moves considering checks
@@ -437,12 +460,12 @@ class GameState:
                         self.blackKingLocation = (r, c)
         # self.getCastleMoves(r, c, moves, allyColor)
 
-
     def pawnPromotion(self, char):
-        self.board[self.eR][self.eC] = 'w'+char if self.whiteToMove else 'b'+char
+        self.board[self.eR][self.eC] = 'w' + char if self.whiteToMove else 'b' + char
         self.board[self.sR][self.sC] = '--'
         self.promotionDone = True
         self.whiteToMove = not self.whiteToMove
+
     '''
     Generate all valid castle moves for the king at (r, c) and add them to the list of moves
     '''
@@ -552,10 +575,10 @@ class Move:
                    "e": 4, "f": 5, "g": 6, "h": 7}
     colsToFiles = {v: k for k, v in filesToCols.items()}
     UNICODE_PIECES = {
-      'bR': '♜', 'bN': '♞', 'bB': '♝', 'bQ': '♛',
-      'bK': '♚', 'bp': '♟', 'wR': '♖', 'wN': '♘',
-      'wB': '♗', 'wQ': '♕', 'wK': '♔', 'wp': '♙',
-      '--': ''
+        'bR': '♜', 'bN': '♞', 'bB': '♝', 'bQ': '♛',
+        'bK': '♚', 'bp': '♟', 'wR': '♖', 'wN': '♘',
+        'wB': '♗', 'wQ': '♕', 'wK': '♔', 'wp': '♙',
+        '--': ''
     }
 
     def __init__(self, startSq, endSq, board, isEnPassantMove=False, isCastleMove=False):
@@ -584,4 +607,3 @@ class Move:
 
     def getRankFile(self, r, c):
         return self.colsToFiles[c] + self.rowsToRanks[r]
-
