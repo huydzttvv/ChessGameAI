@@ -99,15 +99,15 @@ def main(auto_mode=SCREEN_MODE, mode=EASY_MODE, player_option=OUR_AI_WHITE):
         playerTwo = False
         playerAI = True
         # if player_option == OUR_AI_WHITE:
-            # playerOne = False
-            # playerTwo = False
-            # playerAI = True
-            # FIRSTMOVE = True
+        # playerOne = False
+        # playerTwo = False
+        # playerAI = True
+        # FIRSTMOVE = True
         # elif player_option == OUR_AI_BLACK:
-            # playerOne = False
-            # playerTwo = False
-            # playerAI = True
-            # FIRSTMOVE = False
+        # playerOne = False
+        # playerTwo = False
+        # playerAI = True
+        # FIRSTMOVE = False
         # else:
         #     playerOne = False
         #     playerTwo = False
@@ -118,7 +118,7 @@ def main(auto_mode=SCREEN_MODE, mode=EASY_MODE, player_option=OUR_AI_WHITE):
     loadImages()  # Load images of pieces, board
     clock = p.time.Clock()
     gameState = ChessEngine.GameState()
-    
+
     # if player_option == OUR_AI_WHITE:
     #     # FIRSTMOVE = False
     #     COLORGAME = not COLORGAME
@@ -126,7 +126,7 @@ def main(auto_mode=SCREEN_MODE, mode=EASY_MODE, player_option=OUR_AI_WHITE):
     #     # FIRSTMOVE = True
     #     COLORGAME = not COLORGAME
     # gameState.whiteToMove = FISRTMOVE
-        
+
     # EasyAI
     # if gameState.color == 1:
     #     gameState.board = boardreverse
@@ -145,7 +145,7 @@ def main(auto_mode=SCREEN_MODE, mode=EASY_MODE, player_option=OUR_AI_WHITE):
         screen.blit(background, (0, 0))
         # If player 1 turn and white turn or player 2 turn and black turn
         humanTurn = (gameState.whiteToMove and playerOne) or (not gameState.whiteToMove and playerTwo)
-        AIEasyTurn = (gameState.whiteToMove and playerAI)
+        AIEasyTurn = (not gameState.whiteToMove and playerAI)
         for e in p.event.get():
             if e.type == p.QUIT:
                 isPlaying = False
@@ -278,8 +278,8 @@ def main(auto_mode=SCREEN_MODE, mode=EASY_MODE, player_option=OUR_AI_WHITE):
                         gameState.undoMove()
                     moveMade = True
                     gameOver = False
-    ######################################################################################
-    # ChessAI turn
+        ######################################################################################
+        # ChessAI turn
         if not gameOver and not humanTurn and motlan:
             # move = ChessAI.findBestMoveMinMax(gameState, validMoves)
             depth = 2
@@ -292,12 +292,12 @@ def main(auto_mode=SCREEN_MODE, mode=EASY_MODE, player_option=OUR_AI_WHITE):
 
             print(f"RUNNING GAME WITH:AUTO_MODE = {auto_mode}  | MODE = {mode}  | STRATEGY = {strategy}")
             # Opponent AI
-            if not AIEasyTurn:
-                move = ChessAI.move_with_strategy(gs=gameState, depth=1, strategy=strategy)
+            if AIEasyTurn:
+                move = ChessAI.move_with_strategy(gs=gameState, depth=1, strategy=strategy, validMoves=validMoves)
                 # time.sleep(0.5)
             # Our AI Agent
-            elif AIEasyTurn:
-                move = ChessAI.move_with_strategy(gameState, depth, strategy)
+            elif not AIEasyTurn:
+                move = ChessAI.move_with_strategy(gameState, depth, strategy, validMoves)
 
             # if AIEasyTurn:
             #     move = ChessAIEasy.findBestMoveMinMax(gameState, validMoves)
