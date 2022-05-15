@@ -292,12 +292,14 @@ def main(auto_mode=SCREEN_MODE, mode=EASY_MODE, player_option=OUR_AI_WHITE):
 
             print(f"RUNNING GAME WITH:AUTO_MODE = {auto_mode}  | MODE = {mode}  | STRATEGY = {strategy}")
             # Opponent AI
+            strategy_to_use = ChessAI.MIN_MAX_WITHOUT_PRUNING
             if AIEasyTurn:
-                move = ChessAI.move_with_strategy(gs=gameState, depth=1, strategy=strategy, validMoves=validMoves)
+                move = ChessAI.move_with_strategy(gs=gameState, depth=1, strategy=strategy_to_use,
+                                                  validMoves=validMoves)
                 # time.sleep(0.5)
             # Our AI Agent
             elif not AIEasyTurn:
-                move = ChessAI.move_with_strategy(gameState, depth, strategy, validMoves)
+                move = ChessAI.move_with_strategy(gameState, depth, strategy_to_use, validMoves)
 
             # if AIEasyTurn:
             #     move = ChessAIEasy.findBestMoveMinMax(gameState, validMoves)
