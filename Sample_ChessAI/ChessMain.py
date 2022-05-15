@@ -95,25 +95,38 @@ def main(auto_mode=SCREEN_MODE, mode=EASY_MODE, player_option=OUR_AI_WHITE):
                         menuGame = False
             p.display.flip()
     elif auto_mode == TERMINAL_MODE:
-        if player_option == OUR_AI_WHITE:
-            playerOne = False
-            playerTwo = False
-            playerAI = True
-        elif player_option == OUR_AI_BLACK:
-            playerOne = False
-            playerTwo = False
-            playerAI = True
-        else:
-            playerOne = False
-            playerTwo = False
-            playerAI = True
+        playerOne = False
+        playerTwo = False
+        playerAI = True
+        # if player_option == OUR_AI_WHITE:
+            # playerOne = False
+            # playerTwo = False
+            # playerAI = True
+            # FIRSTMOVE = True
+        # elif player_option == OUR_AI_BLACK:
+            # playerOne = False
+            # playerTwo = False
+            # playerAI = True
+            # FIRSTMOVE = False
+        # else:
+        #     playerOne = False
+        #     playerTwo = False
+        #     playerAI = True
         isPlaying = True
         menuGame = False
 
     loadImages()  # Load images of pieces, board
     clock = p.time.Clock()
     gameState = ChessEngine.GameState()
-
+    
+    # if player_option == OUR_AI_WHITE:
+    #     # FIRSTMOVE = False
+    #     COLORGAME = not COLORGAME
+    # elif player_option == OUR_AI_BLACK:
+    #     # FIRSTMOVE = True
+    #     COLORGAME = not COLORGAME
+    # gameState.whiteToMove = FISRTMOVE
+        
     # EasyAI
     # if gameState.color == 1:
     #     gameState.board = boardreverse
@@ -132,7 +145,7 @@ def main(auto_mode=SCREEN_MODE, mode=EASY_MODE, player_option=OUR_AI_WHITE):
         screen.blit(background, (0, 0))
         # If player 1 turn and white turn or player 2 turn and black turn
         humanTurn = (gameState.whiteToMove and playerOne) or (not gameState.whiteToMove and playerTwo)
-        AIEasyTurn = (not gameState.whiteToMove and playerAI)
+        AIEasyTurn = (gameState.whiteToMove and playerAI)
         for e in p.event.get():
             if e.type == p.QUIT:
                 isPlaying = False
@@ -192,10 +205,10 @@ def main(auto_mode=SCREEN_MODE, mode=EASY_MODE, player_option=OUR_AI_WHITE):
                             FISRTMOVE = not FISRTMOVE
                             # Our Agent:  True  --> Go first, False --> Go Second
 
-                            if player_option == OUR_AI_WHITE:
-                                FIRSTMOVE = True
-                            elif player_option == OUR_AI_BLACK:
-                                FIRSTMOVE = False
+                            # if player_option == OUR_AI_WHITE:
+                            #     FIRSTMOVE = True
+                            # elif player_option == OUR_AI_BLACK:
+                            #     FIRSTMOVE = False
 
                             gameState.whiteToMove = FISRTMOVE
                             loadImages()
@@ -279,11 +292,11 @@ def main(auto_mode=SCREEN_MODE, mode=EASY_MODE, player_option=OUR_AI_WHITE):
 
             print(f"RUNNING GAME WITH:AUTO_MODE = {auto_mode}  | MODE = {mode}  | STRATEGY = {strategy}")
             # Opponent AI
-            if AIEasyTurn:
+            if not AIEasyTurn:
                 move = ChessAI.move_with_strategy(gs=gameState, depth=1, strategy=strategy)
                 # time.sleep(0.5)
             # Our AI Agent
-            elif not AIEasyTurn:
+            elif AIEasyTurn:
                 move = ChessAI.move_with_strategy(gameState, depth, strategy)
 
             # if AIEasyTurn:
