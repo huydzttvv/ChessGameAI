@@ -1,0 +1,9 @@
+Để chạy chương trình, hãy dùng câu lệnh dưới đây chạy ở Terminal
+
+Chế độ chọn cách chơi:
+	Easy: 	python .\ChessMain.py SCREEN EASY
+	Medium: python .\ChessMain.py SCREEN MEDIUM       hoặc chỉ chạy file ChessMain.py
+
+Chỉ 2 AI chơi với nhau:
+	Easy: 	python .\ChessMain.py TERMINAL EASY
+	Medium: python .\ChessMain.py TERMINAL MEDIUM

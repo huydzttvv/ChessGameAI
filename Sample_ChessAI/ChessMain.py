@@ -47,7 +47,7 @@ FISRTMOVE = True
 #             ['bR', 'bN', 'bB', 'bQ', 'bK', 'bB', 'bN', 'bR'],
 #             ['bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp']]
 
-def main(auto_mode=SCREEN_MODE, mode=EASY_MODE, player_option=OUR_AI_WHITE):
+def main(auto_mode=SCREEN_MODE, mode=MEDIUM_MODE):
     p.init()
     screen = p.display.set_mode((WIDTH, HEIGHT))
     p.display.set_caption("Auto Chess", "None")
@@ -59,7 +59,6 @@ def main(auto_mode=SCREEN_MODE, mode=EASY_MODE, player_option=OUR_AI_WHITE):
     global COLORGAME
     global FISRTMOVE
     mode = mode
-    player_option = player_option
     strategy = ChessAI.MIN_MAX_WITHOUT_PRUNING
     # In Menu:
     if auto_mode == SCREEN_MODE:
@@ -293,6 +292,7 @@ def main(auto_mode=SCREEN_MODE, mode=EASY_MODE, player_option=OUR_AI_WHITE):
             print(f"RUNNING GAME WITH:AUTO_MODE = {auto_mode}  | MODE = {mode}  | STRATEGY = {strategy}")
             # Opponent AI
             strategy_to_use = ChessAI.MIN_MAX_WITHOUT_PRUNING
+            # strategy_to_use=None
             if AIEasyTurn:
                 move = ChessAI.move_with_strategy(gs=gameState, depth=1, strategy=strategy_to_use,
                                                   validMoves=validMoves)
@@ -546,19 +546,16 @@ def drawMoveLog(screen, gs):
 if __name__ == "__main__":
     available_auto_modes = [SCREEN_MODE, TERMINAL_MODE]
     available_hard_ness_modes = [EASY_MODE, MEDIUM_MODE, HARD_MODE]
-    available_option = [OUR_AI_BLACK, OUR_AI_WHITE]
 
     if len(sys.argv) >= 2:
         AUTO_MODE = sys.argv[1]
         HARDNESS = sys.argv[2]
-        OPTION = sys.argv[3]
         if AUTO_MODE not in available_auto_modes:
             sys.exit("Not found auto mode: AUTO_MODE = SCREEN_MODE || TERMINAL_MODE ")
         if HARDNESS not in available_hard_ness_modes:
             sys.exit(f"Not found auto mode: {available_hard_ness_modes}")
-        if OPTION not in available_option:
-            sys.exit(f"Not found auto mode: {available_option}")
         print(f"START GAME WITH ARGS: {sys.argv}")
-        main(auto_mode=AUTO_MODE, mode=HARDNESS, player_option=OPTION)
+        # main(auto_mode=AUTO_MODE, mode=HARDNESS, player_option=OPTION)
+        main(auto_mode=AUTO_MODE, mode=HARDNESS)
     else:
         main(auto_mode=SCREEN_MODE)
