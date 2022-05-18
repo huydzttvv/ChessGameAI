@@ -82,16 +82,16 @@ MIN_MAX_WITH_BETA_PRUNING = 2
 MIN_MAX_WITHOUT_PRUNING_EASY = 3
 
 
-def move_with_strategy(gs: GameState, depth: int = 2, strategy=MIN_MAX_WITH_BETA_PRUNING):
+def move_with_strategy(gs: GameState, depth: int = 2, strategy=MIN_MAX_WITH_BETA_PRUNING, validMoves = None):
     next_move = None
     if strategy == MIN_MAX_WITH_BETA_PRUNING:
         chess_alpha_beta_best_move(node=gs, depth=depth, alpha=MAX_PLAYER_WORST, beta=MIN_PLAYER_WORST,
                                    is_max_player=True)
     elif strategy == MIN_MAX_WITHOUT_PRUNING:
-        findBestMoveMinMax(gs=gs, validMoves=gs.getValidMoves(), depth=depth)
+        findBestMoveMinMax(gs=gs, validMoves= validMoves if validMoves else gs.getValidMoves(), depth=depth)
     elif strategy == MIN_MAX_WITHOUT_PRUNING_EASY:
         # Move chosen is almost random
-        findBestMoveMinMax(gs=gs, validMoves=gs.getValidMoves(), depth=1)
+        findBestMoveMinMax(gs=gs, validMoves=validMoves if validMoves else gs.getValidMoves(), depth=1)
     return next_move
 
 

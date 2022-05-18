@@ -60,7 +60,7 @@ class Move:
         return False
 
     def getChessNotation(self):
-        from Sample_ChessAI.ChessHelper import ChessHelper
+        from ChessHelper import ChessHelper
         piece_key = ChessHelper.get_piece_side_and_type(self.pieceMoved)
         return self.UNICODE_PIECES[piece_key] + self.getRankFile(self.endRow, self.endCol)
 
@@ -154,7 +154,7 @@ class GameState:
         piece_pos_list = []
         for (row_index, row) in enumerate(self.board):
             for (col_index, cell) in enumerate(row):
-                from Sample_ChessAI.ChessHelper import ChessHelper
+                from ChessHelper import ChessHelper
                 if not ChessHelper.is_empty_cell(self.get_pos_value((row_index, col_index))):
                     piece_pos_tuple = (cell, (row_index, col_index))
                     piece_pos_list.append(piece_pos_tuple)
@@ -203,7 +203,7 @@ class GameState:
                 return True
             if alive_pieces_tuple in KING_BISHOP_VS_KING_BISHOP:
                 current_alive_pieces_with_pos = self.get_alive_pieces_with_pos()
-                from Sample_ChessAI.ChessHelper import ChessHelper
+                from ChessHelper import ChessHelper
                 bishop_piece_pos_list = [item for item in current_alive_pieces_with_pos if
                                          ChessHelper.is_bishop_piece_pos(item)]
                 if len(bishop_piece_pos_list) != 2:
@@ -226,14 +226,14 @@ class GameState:
 
     def capture_piece(self, pos: MoveTuple):
         piece_value = self.get_pos_value(pos)
-        from Sample_ChessAI.ChessHelper import ChessHelper
+        from ChessHelper import ChessHelper
         if not ChessHelper.is_empty_cell(pos):
             self.alive_pieces_dict.pop(piece_value)
 
     def erase_piece_at_pos(self, pos: MoveTuple):
         row, col = pos
         board_value = self.get_pos_value(pos)
-        from Sample_ChessAI.ChessHelper import ChessHelper
+        from ChessHelper import ChessHelper
         if not ChessHelper.is_empty_cell(board_value):
             if ChessHelper.is_white_piece(board_value):
                 self.whiteCapturedPieces.append(board_value)
@@ -250,7 +250,7 @@ class GameState:
         self.moveLog.append(move)
         self.whiteToMove = not self.whiteToMove
         # update King's location if moved
-        from Sample_ChessAI.ChessHelper import ChessHelper
+        from ChessHelper import ChessHelper
         if ChessHelper.is_white_king(pieceMoved):
             self.whiteKingLocation = (move.endRow, move.endCol)
         elif ChessHelper.is_black_king(pieceMoved):
@@ -305,7 +305,7 @@ class GameState:
             self.board[move.endRow][move.endCol] = move.pieceCaptured
             self.whiteToMove = not self.whiteToMove
             # update King's location if moved
-            from Sample_ChessAI.ChessHelper import ChessHelper
+            from ChessHelper import ChessHelper
             if ChessHelper.is_white_king(pieceMoved):
                 self.whiteKingLocation = (move.startRow, move.startCol)
             elif ChessHelper.is_black_king(pieceMoved):
@@ -336,7 +336,7 @@ class GameState:
 
     def updateCastleRights(self, move):
         pieceMoved = move.pieceMoved
-        from Sample_ChessAI.ChessHelper import ChessHelper
+        from ChessHelper import ChessHelper
         if ChessHelper.is_white_king(pieceMoved):
             self.currentCastlingRight.wks = False
             self.currentCastlingRight.wqs = False
@@ -393,7 +393,7 @@ class GameState:
                 pieceChecking = self.board[checkRow][checkCol]
                 validSquares = []  # squares the pieces can move to
                 # if knight, must capture knight or move king, other piece can block
-                from Sample_ChessAI.ChessHelper import ChessHelper
+                from ChessHelper import ChessHelper
                 if ChessHelper.is_knight_piece(pieceChecking):
                     validSquares = [(checkRow, checkCol)]
                 else:
@@ -680,7 +680,7 @@ class GameState:
                     print(f"DEBUG::ERASE_WEIRD::CALLED {row} {col}")
                     # self.board[row][col] = '--'
                     inChecks, pins, checks = self.checkForPinsAndChecks()
-                    from Sample_ChessAI.ChessHelper import ChessHelper
+                    from ChessHelper import ChessHelper
                     if allyColor == WHITE_PIECE_PREFIX:
                         ChessHelper.is_white_king(
                             self.get_pos_value((row, col)))
