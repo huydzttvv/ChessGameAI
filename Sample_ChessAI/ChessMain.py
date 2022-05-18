@@ -1,17 +1,20 @@
-import sys
-
-from multiprocessing.connection import wait
-from random import randint
+import os
 import pygame as p
 import ChessEngine
-import ChessAIEasy
 import ChessAI
 import time
-import os
+import sys
 
-from ChessHelper import ChessHelper
-from ChessTypes import BISHOP_PIECE, KNIGHT_PIECE, QUEEN_PIECE, ROOK_PIECE, WHITE_PIECE_PREFIX, \
-    BLACK_PIECE_PREFIX
+EASY_MODE = "EASY"
+MEDIUM_MODE = "MEDIUM"
+HARD_MODE = "HARD"
+
+SCREEN_MODE = "SCREEN"
+TERMINAL_MODE = "TERMINAL"
+
+OUR_AI_WHITE = "WHITE_AGENT_OPPONENT_BLACK"
+OUR_AI_BLACK = "BLACK_AGENT_OPPONENT_WHITE"
+HUMAN_WHITE_AI_BLACK = "WHITE_HUMAN_BLACK_AI"
 
 TIME = 48
 BORDER = 32
@@ -26,7 +29,13 @@ MAX_FPS = 15
 IMAGES = {}
 PLAYER_TIME_GRANTED = 1800
 
+
 COLORGAME = False
+
+AILEVEL = True
+
+FISRTMOVE = True
+
 
 # COLORFLAG = False
 
@@ -40,15 +49,7 @@ COLORGAME = False
 #             ['bR', 'bN', 'bB', 'bQ', 'bK', 'bB', 'bN', 'bR'],
 #             ['bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp']]
 
-SCREEN_MODE = "SCREEN"
-TERMINAL_MODE = "TERMINAL"
-
-OUR_AI_WHITE = "WHITE_AGENT_OPPONENT_BLACK"
-OUR_AI_BLACK = "BLACK_AGENT_OPPONENT_WHITE"
-HUMAN_WHITE_AI_BLACK = "WHITE_HUMAN_BLACK_AI"
-
-
-def main(menu_mode: str = SCREEN_MODE, players_options: str = OUR_AI_WHITE):
+def main(auto_mode=SCREEN_MODE, mode=EASY_MODE, player_option=OUR_AI_WHITE):
     p.init()
     screen = p.display.set_mode((WIDTH, HEIGHT))
     p.display.set_caption("Auto Chess", "None")
@@ -58,43 +59,75 @@ def main(menu_mode: str = SCREEN_MODE, players_options: str = OUR_AI_WHITE):
     playerTwo = True
     playerAI = False
     global COLORGAME
-
+    global FISRTMOVE
+    mode = mode
+    player_option = player_option
+    strategy = ChessAI.MIN_MAX_WITHOUT_PRUNING
     # In Menu:
-    while menuGame:
-        drawMenuState(screen)
-        for e in p.event.get():
-            if e.type == p.QUIT:
-                menuGame = False
-            if e.type == p.MOUSEBUTTONDOWN:
-                location = p.mouse.get_pos()  # (x, y) location of mouse
-                # print(location)
-                if 540 <= location[1] < 590:
-                    # One Player
-                    # if 150 <= location[0] < 300:
-                    #     playerOne = True
-                    #     playerTwo = False
-                    #     COLORFLAG = True
-                    if 300 <= location[0] < 450:
-                        playerOne = True
-                        playerTwo = False
-                        playerAI = False
-                    # Two Player
-                    elif 526 <= location[0] < 677:
-                        playerOne = True
-                        playerTwo = True
-                        playerAI = False
-                    # None Player
-                    elif 750 <= location[0] < 900:
-                        playerOne = False
-                        playerTwo = False
-                        playerAI = True
-                    isPlaying = True  # Game start
+    if auto_mode == SCREEN_MODE:
+        while menuGame:
+            drawMenuState(screen)
+            for e in p.event.get():
+                if e.type == p.QUIT:
                     menuGame = False
-        p.display.flip()
+                if e.type == p.MOUSEBUTTONDOWN:
+                    location = p.mouse.get_pos()  # (x, y) location of mouse
+                    # print(location)
+                    if 540 <= location[1] < 590:
+                        # One Player
+                        # if 150 <= location[0] < 300:
+                        #     playerOne = True
+                        #     playerTwo = False
+                        #     COLORFLAG = True
+                        if 300 <= location[0] < 450:
+                            playerOne = True
+                            playerTwo = False
+                            playerAI = False
+                        # Two Player
+                        elif 526 <= location[0] < 677:
+                            playerOne = True
+                            playerTwo = True
+                            playerAI = False
+                        # None Player
+                        elif 750 <= location[0] < 900:
+                            playerOne = False
+                            playerTwo = False
+                            playerAI = True
+                        isPlaying = True  # Game start
+                        menuGame = False
+            p.display.flip()
+    elif auto_mode == TERMINAL_MODE:
+        playerOne = False
+        playerTwo = False
+        playerAI = True
+        # if player_option == OUR_AI_WHITE:
+        # playerOne = False
+        # playerTwo = False
+        # playerAI = True
+        # FIRSTMOVE = True
+        # elif player_option == OUR_AI_BLACK:
+        # playerOne = False
+        # playerTwo = False
+        # playerAI = True
+        # FIRSTMOVE = False
+        # else:
+        #     playerOne = False
+        #     playerTwo = False
+        #     playerAI = True
+        isPlaying = True
+        menuGame = False
 
     loadImages()  # Load images of pieces, board
     clock = p.time.Clock()
     gameState = ChessEngine.GameState()
+
+    # if player_option == OUR_AI_WHITE:
+    #     # FIRSTMOVE = False
+    #     COLORGAME = not COLORGAME
+    # elif player_option == OUR_AI_BLACK:
+    #     # FIRSTMOVE = True
+    #     COLORGAME = not COLORGAME
+    # gameState.whiteToMove = FISRTMOVE
 
     # EasyAI
     # if gameState.color == 1:
@@ -111,7 +144,8 @@ def main(menu_mode: str = SCREEN_MODE, players_options: str = OUR_AI_WHITE):
     while isPlaying:
         time.sleep(0.2)
         start_time = time.time()
-        background = p.transform.scale(p.image.load("chessv2/menu.png"), (WIDTH, HEIGHT))
+        background = p.transform.scale(
+            p.image.load("chessv2/menu.png"), (WIDTH, HEIGHT))
         screen.blit(background, (0, 0))
         # If player 1 turn and white turn or player 2 turn and black turn
         humanTurn = (gameState.whiteToMove and playerOne) or (
@@ -146,8 +180,9 @@ def main(menu_mode: str = SCREEN_MODE, players_options: str = OUR_AI_WHITE):
                             playerAI = False
                             p1Time = p2Time = 1800
                             humanTurn = (gameState.whiteToMove and playerOne) or (
-                                    not gameState.whiteToMove and playerTwo)
-                            drawGameState(screen, gameState, gameState.getValidMoves(), sqSelected)
+                                not gameState.whiteToMove and playerTwo)
+                            drawGameState(screen, gameState,
+                                          gameState.getValidMoves(), sqSelected)
                         # Start a new 2 player game
                         if 230 <= location[1] < 280:
                             gameState = ChessEngine.GameState()
@@ -164,14 +199,25 @@ def main(menu_mode: str = SCREEN_MODE, players_options: str = OUR_AI_WHITE):
                             playerAI = False
                             p1Time = p2Time = 1800
                             humanTurn = (gameState.whiteToMove and playerOne) or (
-                                    not gameState.whiteToMove and playerTwo)
-                            drawGameState(screen, gameState, gameState.getValidMoves(), sqSelected)
+                                not gameState.whiteToMove and playerTwo)
+                            drawGameState(screen, gameState,
+                                          gameState.getValidMoves(), sqSelected)
                         # Start a new none player game
                         if 330 <= location[1] < 380:
                             gameState = ChessEngine.GameState()
 
+                            # gameState.whiteToMove = bool(random.getrandbits(1))
                             # global COLORGAME
                             COLORGAME = not COLORGAME
+                            FISRTMOVE = not FISRTMOVE
+                            # Our Agent:  True  --> Go first, False --> Go Second
+
+                            # if player_option == OUR_AI_WHITE:
+                            #     FIRSTMOVE = True
+                            # elif player_option == OUR_AI_BLACK:
+                            #     FIRSTMOVE = False
+
+                            gameState.whiteToMove = FISRTMOVE
                             loadImages()
 
                             validMoves = gameState.getValidMoves()  # Get all the valid move
@@ -242,15 +288,42 @@ def main(menu_mode: str = SCREEN_MODE, players_options: str = OUR_AI_WHITE):
                         gameState.undoMove()
                     moveMade = True
                     gameOver = False
+        ######################################################################################
         # ChessAI turn
         if not gameOver and not humanTurn and motlan:
             # move = ChessAI.findBestMoveMinMax(gameState, validMoves)
+            depth = 2
+            if mode == EASY_MODE:
+                depth = 1
+            elif mode == MEDIUM_MODE:
+                depth = 2
+            elif mode == HARD_MODE:
+                depth = 3
+
+            print(
+                f"RUNNING GAME WITH:AUTO_MODE = {auto_mode}  | MODE = {mode}  | STRATEGY = {strategy}")
+            # Opponent AI
+            strategy_to_use = ChessAI.MIN_MAX_WITHOUT_PRUNING
             if AIEasyTurn:
-                # move = ChessAIEasy.findBestMoveMinMax(gameState, validMoves)
-                move = ChessAI.move_with_strategy(gs =gameState, depath = 2, validMoves=validMoves)
+                move = ChessAI.move_with_strategy(gs=gameState, depth=1, strategy=strategy_to_use,
+                                                  validMoves=validMoves)
                 # time.sleep(0.5)
+            # Our AI Agent
             elif not AIEasyTurn:
-                move = ChessAI.findBestMoveMinMax(gameState, validMoves)
+                move = ChessAI.move_with_strategy(
+                    gameState, depth, strategy_to_use, validMoves)
+
+            # if AIEasyTurn:
+            #     move = ChessAIEasy.findBestMoveMinMax(gameState, validMoves)
+            #     # time.sleep(0.5)
+            # elif not AIEasyTurn:
+            #     move = ChessAI.findBestMoveMinMax(gameState, validMoves)
+
+            # if AILEVEL == MEDIUM_MODE:
+            #     move = ChessAI.findBestMoveMinMax(gameState, validMoves)
+            # else:
+            #     move = ChessAIEasy.findBestMoveMinMax(gameState, validMoves)
+
             if move is None:
                 move = ChessAI.findRandomMove(validMoves)
             gameState.makeMove(move)
@@ -329,11 +402,13 @@ def loadImages():
             IMAGES[piece] = p.transform.scale(p.image.load(
                 "chessOri2/" + piece + ".png"), (SQ_SIZE, SQ_SIZE))
         else:
+            # IMAGES[piece] = p.transform.scale(p.image.load("chessOri/" + piece + ".png"), (SQ_SIZE, SQ_SIZE))
             IMAGES[piece] = p.transform.scale(p.image.load(
                 "chessOri/" + piece + ".png"), (SQ_SIZE, SQ_SIZE))
 
         # IMAGES[piece + "l"] = p.transform.scale(p.image.load("images/" + piece + "l.png"), (SQ_SIZE, SQ_SIZE))
     for block in blocks:
+        image_path = os.path.join(os.curdir, "images", block + ".png")
         IMAGES[block] = p.transform.scale(p.image.load(
             "images/" + block + ".png"), (SQ_SIZE, SQ_SIZE))
 
@@ -377,6 +452,7 @@ def highlightPiece(screen, gameState, sqSelected):
 
 
 def drawPieces(screen, board):
+    from ChessHelper import ChessHelper
     for r in range(DIMENSION):
         for c in range(DIMENSION):
             piece = board[r][c]
@@ -469,7 +545,8 @@ def gameOverText(screen, whiteToMove):
 def drawMoveLog(screen, gs):
     font_path = os.path.join(os.curdir, "Font", "seguisym.ttf")
     font = p.font.Font(font_path, 16)
-    moveLogRect = p.Rect(MENU + BOARD + BORDER * 2 + 20, TIME + 10, MOVE_LOG, BORDER * 2 + BOARD)
+    moveLogRect = p.Rect(MENU + BOARD + BORDER * 2 + 20,
+                         TIME + 10, MOVE_LOG, BORDER * 2 + BOARD)
     # p.draw.rect(screen, p.Color('Black'), moveLogRect)
     moveLog = gs.moveLog
     moveTexts = []
@@ -496,10 +573,22 @@ def drawMoveLog(screen, gs):
 
 
 if __name__ == "__main__":
+    available_auto_modes = [SCREEN_MODE, TERMINAL_MODE]
+    available_hard_ness_modes = [EASY_MODE, MEDIUM_MODE, HARD_MODE]
+    available_option = [OUR_AI_BLACK, OUR_AI_WHITE]
+
     if len(sys.argv) >= 2:
-        MODE = sys.argv[1]
-        OPTION = sys.argv[2]
-        print(f"Game started with mode = {MODE} | option = {OPTION}")
-        main(menu_mode=MODE, players_options=OPTION)
+        AUTO_MODE = sys.argv[1]
+        HARDNESS = sys.argv[2]
+        OPTION = sys.argv[3]
+        if AUTO_MODE not in available_auto_modes:
+            sys.exit(
+                "Not found auto mode: AUTO_MODE = SCREEN_MODE || TERMINAL_MODE ")
+        if HARDNESS not in available_hard_ness_modes:
+            sys.exit(f"Not found auto mode: {available_hard_ness_modes}")
+        if OPTION not in available_option:
+            sys.exit(f"Not found auto mode: {available_option}")
+        print(f"START GAME WITH ARGS: {sys.argv}")
+        main(auto_mode=AUTO_MODE, mode=HARDNESS, player_option=OPTION)
     else:
-        main(menu_mode=SCREEN_MODE)
+        main(auto_mode=SCREEN_MODE)
