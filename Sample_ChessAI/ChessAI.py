@@ -205,6 +205,83 @@ def findBestMove(gs, validMoves):
     return bestPlayerMove
 
 
+def chessAlphaBeta(node: GameState, depth: int = 2, alpha: int = MAX_PLAYER_WORST, beta: int = MIN_PLAYER_WORST,
+                   is_max_player: bool = True):
+    if depth == 0 or isTerminalNode(node):
+        return calculateHeuristicScoreForNode(node)
+    if is_max_player:
+        value = MAX_PLAYER_WORST
+        for move in node.getValidMoves():
+            node.makeMove(move)
+            value = max(value, chessAlphaBeta(
+                node, depth - 1, alpha, beta, False))
+            node.undoMove()
+            if (value >= beta):
+                break  # Beta cutofff
+            alpha = max(alpha, value)
+        return value
+    # * Min Player:
+    else:
+        value = MIN_PLAYER_WORST
+        for move in node.getValidMoves():
+            node.makeMove(move)
+            value = min(value, chessAlphaBeta(
+                node, depth - 1, alpha, beta, True))
+            node.undoMove()
+            if value <= alpha:
+                break  # Alpha cutoff
+            beta = min(beta, value)
+        return value
+
+
+# * ------------------- Code Refactor +  Alpha - beta pruning ----------------
+def isTerminalNode(gs: GameState):
+    return gs.check_game_ended()
+
+
+# TODO: Calculate heuristic for the node based on material and the game flow (Some combination of pieces position are more powerful than others)
+def calculateHeuristicScoreForNode(gs: GameState):
+    return gs.get_board_score_value()
+
+
+# TODO: For better performance we should not choose moves randomly when searching
+# TODO: ---> Move Order matters: Check for pawn structures + isolation + king postition + forks and pins
+# TODO: Below code is wrong in part that child is not a game state: GS = makeMove(currentGameState, child);
+
+def chess_alpha_beta_best_move(node: GameState, depth, alpha, beta, is_max_player):
+    global next_move
+    if depth == 0 or isTerminalNode(node):
+        return calculateHeuristicScoreForNode(node)
+    if is_max_player:
+        value = MAX_PLAYER_WORST
+        for move in node.getValidMoves():
+            node.makeMove(move)
+            value = max(value, chessAlphaBeta(
+                node, depth - 1, alpha, beta, False))
+            node.undoMove()
+            if value >= beta:
+                break  # Beta cutofff
+            if value > alpha:
+                alpha = value
+                next_move = move
+        return value
+    # * Min Player:
+    else:
+        value = MIN_PLAYER_WORST
+        for move in node.getValidMoves():
+            node.makeMove(move)
+            value = min(value, chessAlphaBeta(
+                node, depth - 1, alpha, beta, True))
+            node.undoMove()
+            if value <= alpha:
+                break  # Alpha cutoff
+            if value < beta:
+                beta = value
+                next_move = move
+            beta = min(beta, value)
+        return value
+
+
 def findBestMoveMinMax(gs: GameState, validMoves, depth=2):
     global nextMove
     nextMove = None

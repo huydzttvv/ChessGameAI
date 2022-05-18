@@ -91,8 +91,6 @@ KING_BISHOP_VS_KING_BISHOP = {('bK', 'bB', 'wB', 'wK')}
 
 class GameState:
     def __init__(self):
-
-        # self.color = randint(0,1)
         self.board = [
             ['bR1', 'bN1', 'bB1', 'bQ', 'bK', 'bB2', 'bN2', 'bR2'],
             ['bp1', 'bp2', 'bp3', 'bp4', 'bp5', 'bp6', 'bp7', 'bp8'],
@@ -103,17 +101,6 @@ class GameState:
             ['wp1', 'wp2', 'wp3', 'wp4', 'wp5', 'wp6', 'wp7', 'wp8'],
             ['wR1', 'wN1', 'wB1', 'wQ', 'wK', 'wB2', 'wN2', 'wR2'],
         ]
-
-        # if self.color == 1:
-        #     self.board = [
-        #         ['wR', 'wN', 'wB', 'wQ', 'wK', 'wB', 'wN', 'wR'],
-        #         ['wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp', 'wp'],
-        #         ['--', '--', '--', '--', '--', '--', '--', '--'],
-        #         ['--', '--', '--', '--', '--', '--', '--', '--'],
-        #         ['--', '--', '--', '--', '--', '--', '--', '--'],
-        #         ['--', '--', '--', '--', '--', '--', '--', '--'],
-        #         ['bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp'],
-        #         ['bR', 'bN', 'bB', 'bQ', 'bK', 'bB', 'bN', 'bR']]
 
         self.moveFunctions = {'p': self.getPawnMoves, 'R': self.getRookMoves, 'N': self.getKnightMoves,
                               'B': self.getBishopMoves, 'K': self.getKingMoves, 'Q': self.getQueenMoves}
@@ -138,6 +125,32 @@ class GameState:
         # Keep track of the captured pieces for game draw checking
         self.blackCapturedPieces = []
         self.whiteCapturedPieces = []
+
+    def check_game_ended(self):
+        return self.checkmate or self.stalemate
+
+    def get_board_score_value(self):
+        from ChessAIEasy import CHECKMATE
+        from ChessAIEasy import STALEMATE
+        from ChessAIEasy import piecesScore
+        if self.checkmate and self.whiteToMove:
+            return 10000
+
+        if self.checkmate:
+            if self.whiteToMove:
+                return -CHECKMATE  # black wins
+            else:
+                return CHECKMATE  # white wins
+        elif self.stalemate:
+            return STALEMATE
+        score = 0
+        for row in self.board:
+            for square in row:
+                if square[0] == 'w':
+                    score += piecesScore[square[1]]
+                elif square[0] == 'b':
+                    score -= piecesScore[square[1]]
+        return score
 
         # Alive pieces on the board
         self.alive_pieces_dict = self.get_alive_pieces_dict()
@@ -677,7 +690,6 @@ class GameState:
                     else:
                         row, col = self.blackKingLocation[0], self.blackKingLocation[1]
                         self.blackKingLocation = (endRow, endCol)
-                    print(f"DEBUG::ERASE_WEIRD::CALLED {row} {col}")
                     # self.board[row][col] = '--'
                     inChecks, pins, checks = self.checkForPinsAndChecks()
                     from ChessHelper import ChessHelper
@@ -803,3 +815,58 @@ class GameState:
                     inCheck = True
                     checks.append((endRow, endCol, m[0], m[1]))
         return inCheck, pins, checks
+
+
+class CastleRights:
+    def __init__(self, wks, bks, wqs, bqs):
+        self.wks = wks
+        self.bks = bks
+        self.wqs = wqs
+        self.bqs = bqs
+
+
+class Move:
+    # maps keys to values:
+    # key : value
+    ranksToRows = {"1": 7, "2": 6, "3": 5, "4": 4,
+                   "5": 3, "6": 2, "7": 1, "8": 0}
+    rowsToRanks = {v: k for k, v in ranksToRows.items()}
+    filesToCols = {"a": 0, "b": 1, "c": 2, "d": 3,
+                   "e": 4, "f": 5, "g": 6, "h": 7}
+    colsToFiles = {v: k for k, v in filesToCols.items()}
+    UNICODE_PIECES = {
+        'bR': '♜', 'bN': '♞', 'bB': '♝', 'bQ': '♛',
+        'bK': '♚', 'bp': '♟', 'wR': '♖', 'wN': '♘',
+        'wB': '♗', 'wQ': '♕', 'wK': '♔', 'wp': '♙',
+        '--': ''
+    }
+
+    def __init__(self, startSq, endSq, board, isEnPassantMove=False, isCastleMove=False):
+        self.startRow = startSq[0]
+        self.startCol = startSq[1]
+        self.endRow = endSq[0]
+        self.endCol = endSq[1]
+        self.pieceMoved = board[self.startRow][self.startCol]
+        self.pieceCaptured = board[self.endRow][self.endCol]
+        # en passant
+        self.isEnPassantMove = isEnPassantMove
+        if self.isEnPassantMove:
+            self.pieceCaptured = 'wp' if self.pieceMoved == 'bp' else 'bp'
+        self.modeID = self.startRow * 1000 + self.startCol * \
+            100 + self.endRow * 10 + self.endCol
+        self.isCastleMove = isCastleMove
+
+    '''Override'''
+
+    def __eq__(self, other):
+        if isinstance(other, Move):
+            return self.modeID == other.modeID
+        return False
+
+    def getChessNotation(self):
+        from ChessHelper import ChessHelper
+        chess_piece_key = ChessHelper.get_piece_side_and_type(self.pieceMoved)
+        return self.UNICODE_PIECES[chess_piece_key] + self.getRankFile(self.endRow, self.endCol)
+
+    def getRankFile(self, r, c):
+        return self.colsToFiles[c] + self.rowsToRanks[r]

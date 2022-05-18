@@ -1,5 +1,7 @@
 import sys
 
+from multiprocessing.connection import wait
+from random import randint
 import pygame as p
 import ChessEngine
 import ChessAIEasy
@@ -57,55 +59,38 @@ def main(menu_mode: str = SCREEN_MODE, players_options: str = OUR_AI_WHITE):
     playerAI = False
     global COLORGAME
 
-    if menu_mode == SCREEN_MODE:
-        # In Menu:
-        while menuGame:
-            drawMenuState(screen)
-            for e in p.event.get():
-                if e.type == p.QUIT:
+    # In Menu:
+    while menuGame:
+        drawMenuState(screen)
+        for e in p.event.get():
+            if e.type == p.QUIT:
+                menuGame = False
+            if e.type == p.MOUSEBUTTONDOWN:
+                location = p.mouse.get_pos()  # (x, y) location of mouse
+                # print(location)
+                if 540 <= location[1] < 590:
+                    # One Player
+                    # if 150 <= location[0] < 300:
+                    #     playerOne = True
+                    #     playerTwo = False
+                    #     COLORFLAG = True
+                    if 300 <= location[0] < 450:
+                        playerOne = True
+                        playerTwo = False
+                        playerAI = False
+                    # Two Player
+                    elif 526 <= location[0] < 677:
+                        playerOne = True
+                        playerTwo = True
+                        playerAI = False
+                    # None Player
+                    elif 750 <= location[0] < 900:
+                        playerOne = False
+                        playerTwo = False
+                        playerAI = True
+                    isPlaying = True  # Game start
                     menuGame = False
-                if e.type == p.MOUSEBUTTONDOWN:
-                    location = p.mouse.get_pos()  # (x, y) location of mouse
-                    # print(location)
-                    if 540 <= location[1] < 590:
-                        # One Player
-                        # if 150 <= location[0] < 300:
-                        #     playerOne = True
-                        #     playerTwo = False
-                        #     COLORFLAG = True
-                        if 300 <= location[0] < 450:
-                            playerOne = True
-                            playerTwo = False
-                            playerAI = False
-                        # Two Player
-                        elif 526 <= location[0] < 677:
-                            playerOne = True
-                            playerTwo = True
-                            playerAI = False
-                        # None Player
-                        elif 750 <= location[0] < 900:
-                            playerOne = False
-                            playerTwo = False
-                            playerAI = True
-                        isPlaying = True  # Game start
-                        menuGame = False
-            p.display.flip()
-    elif menu_mode == TERMINAL_MODE:
-        if players_options == OUR_AI_WHITE:
-            playerOne = False
-            playerTwo = False
-            playerAI = True
-        elif players_options == OUR_AI_BLACK:
-            playerOne = False
-            playerTwo = False
-            playerAI = True
-        else:
-            playerOne = False
-            playerTwo = False
-            playerAI = True
-        isPlaying = True
-        menuGame = False
-        # TODO: Add configuration to make sure the correct player move order for the AI Agent
+        p.display.flip()
 
     loadImages()  # Load images of pieces, board
     clock = p.time.Clock()
@@ -126,8 +111,7 @@ def main(menu_mode: str = SCREEN_MODE, players_options: str = OUR_AI_WHITE):
     while isPlaying:
         time.sleep(0.2)
         start_time = time.time()
-        background = p.transform.scale(
-            p.image.load("chessv2/menu.png"), (WIDTH, HEIGHT))
+        background = p.transform.scale(p.image.load("chessv2/menu.png"), (WIDTH, HEIGHT))
         screen.blit(background, (0, 0))
         # If player 1 turn and white turn or player 2 turn and black turn
         humanTurn = (gameState.whiteToMove and playerOne) or (
@@ -162,9 +146,8 @@ def main(menu_mode: str = SCREEN_MODE, players_options: str = OUR_AI_WHITE):
                             playerAI = False
                             p1Time = p2Time = 1800
                             humanTurn = (gameState.whiteToMove and playerOne) or (
-                                not gameState.whiteToMove and playerTwo)
-                            drawGameState(screen, gameState,
-                                          gameState.getValidMoves(), sqSelected)
+                                    not gameState.whiteToMove and playerTwo)
+                            drawGameState(screen, gameState, gameState.getValidMoves(), sqSelected)
                         # Start a new 2 player game
                         if 230 <= location[1] < 280:
                             gameState = ChessEngine.GameState()
@@ -181,9 +164,8 @@ def main(menu_mode: str = SCREEN_MODE, players_options: str = OUR_AI_WHITE):
                             playerAI = False
                             p1Time = p2Time = 1800
                             humanTurn = (gameState.whiteToMove and playerOne) or (
-                                not gameState.whiteToMove and playerTwo)
-                            drawGameState(screen, gameState,
-                                          gameState.getValidMoves(), sqSelected)
+                                    not gameState.whiteToMove and playerTwo)
+                            drawGameState(screen, gameState, gameState.getValidMoves(), sqSelected)
                         # Start a new none player game
                         if 330 <= location[1] < 380:
                             gameState = ChessEngine.GameState()
@@ -264,7 +246,8 @@ def main(menu_mode: str = SCREEN_MODE, players_options: str = OUR_AI_WHITE):
         if not gameOver and not humanTurn and motlan:
             # move = ChessAI.findBestMoveMinMax(gameState, validMoves)
             if AIEasyTurn:
-                move = ChessAIEasy.findBestMoveMinMax(gameState, validMoves)
+                # move = ChessAIEasy.findBestMoveMinMax(gameState, validMoves)
+                move = ChessAI.move_with_strategy(gs =gameState, depath = 2, validMoves=validMoves)
                 # time.sleep(0.5)
             elif not AIEasyTurn:
                 move = ChessAI.findBestMoveMinMax(gameState, validMoves)
@@ -486,8 +469,7 @@ def gameOverText(screen, whiteToMove):
 def drawMoveLog(screen, gs):
     font_path = os.path.join(os.curdir, "Font", "seguisym.ttf")
     font = p.font.Font(font_path, 16)
-    moveLogRect = p.Rect(MENU + BOARD + BORDER * 2 + 20,
-                         TIME + 10, MOVE_LOG, BORDER * 2 + BOARD)
+    moveLogRect = p.Rect(MENU + BOARD + BORDER * 2 + 20, TIME + 10, MOVE_LOG, BORDER * 2 + BOARD)
     # p.draw.rect(screen, p.Color('Black'), moveLogRect)
     moveLog = gs.moveLog
     moveTexts = []
