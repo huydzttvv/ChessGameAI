@@ -1,4 +1,4 @@
-from Sample_ChessAI.ChessTypes import PiecePosTuple, MoveTuple, EMPTY_CELL, WHITE_PIECE_PREFIX, BLACK_PIECE_PREFIX, \
+from ChessTypes import PiecePosTuple, MoveTuple, EMPTY_CELL, WHITE_PIECE_PREFIX, BLACK_PIECE_PREFIX, \
     ROOK_PIECE, BISHOP_PIECE, PAWN_PIECE, QUEEN_PIECE, KING_PIECE, KNIGHT_PIECE
 
 
@@ -49,7 +49,7 @@ class Move:
         if self.isEnPassantMove:
             self.pieceCaptured = 'wp' if self.pieceMoved == 'bp' else 'bp'
         self.modeID = self.startRow * 1000 + self.startCol * \
-                      100 + self.endRow * 10 + self.endCol
+            100 + self.endRow * 10 + self.endCol
         self.isCastleMove = isCastleMove
 
     '''Override'''
@@ -168,7 +168,7 @@ class GameState:
         piece_pos_dict = {}
         for (row_index, row) in enumerate(self.board):
             for (col_index, cell) in enumerate(row):
-                from Sample_ChessAI.ChessHelper import ChessHelper
+                from ChessHelper import ChessHelper
                 if not ChessHelper.is_empty_cell(cell):
                     piece_pos_dict[cell] = (row_index, col_index)
         return piece_pos_dict
@@ -207,7 +207,8 @@ class GameState:
                 bishop_piece_pos_list = [item for item in current_alive_pieces_with_pos if
                                          ChessHelper.is_bishop_piece_pos(item)]
                 if len(bishop_piece_pos_list) != 2:
-                    raise TypeError("This should contain exactly two Bishop piecepos")
+                    raise TypeError(
+                        "This should contain exactly two Bishop piecepos")
                 first_bishop_pos = bishop_piece_pos_list[0][1]
                 second_bishop_pos = bishop_piece_pos_list[1][1]
                 both_black_square = ChessHelper.is_black_square(first_bishop_pos) and ChessHelper.is_black_square(
@@ -548,7 +549,7 @@ class GameState:
                 piecePinned = True
                 pinDirection = (self.pins[i][2], self.pins[i][3])
                 if self.board[r][c][
-                    1] != 'Q':  # can't remove queen from pin on rook moves, only remove it on bishop moves
+                        1] != 'Q':  # can't remove queen from pin on rook moves, only remove it on bishop moves
                     self.pins.remove(self.pins[i])
                 break
         directions = ((-1, 0), (0, -1), (1, 0), (0, 1))
@@ -681,9 +682,11 @@ class GameState:
                     inChecks, pins, checks = self.checkForPinsAndChecks()
                     from Sample_ChessAI.ChessHelper import ChessHelper
                     if allyColor == WHITE_PIECE_PREFIX:
-                        ChessHelper.is_white_king(self.get_pos_value((row, col)))
+                        ChessHelper.is_white_king(
+                            self.get_pos_value((row, col)))
                     else:
-                        ChessHelper.is_black_king(self.get_pos_value((row, col)))
+                        ChessHelper.is_black_king(
+                            self.get_pos_value((row, col)))
                     if not inChecks:
                         moves.append(
                             Move((r, c), (endRow, endCol), self.board))
@@ -696,7 +699,7 @@ class GameState:
 
     def pawnPromotion(self, char):
         piece_promoted_to = WHITE_PIECE_PREFIX + \
-                            char if self.whiteToMove else BLACK_PIECE_PREFIX + char
+            char if self.whiteToMove else BLACK_PIECE_PREFIX + char
 
         self.board[self.eR][self.eC] = piece_promoted_to + self.promotion_seed
         self.promotion_seed = self.promotion_seed + 1
@@ -773,7 +776,7 @@ class GameState:
                         if (0 <= j <= 3 and type == ROOK_PIECE) or \
                                 (4 <= j <= 7 and type == BISHOP_PIECE) or \
                                 (i == 1 and type == PAWN_PIECE and (
-                                        (enemyColor == WHITE_PIECE_PREFIX and 6 <= j <= 7) or (
+                                    (enemyColor == WHITE_PIECE_PREFIX and 6 <= j <= 7) or (
                                         enemyColor == BLACK_PIECE_PREFIX and 4 <= j <= 5))) or \
                                 (type == QUEEN_PIECE) or (i == 1 and type == KING_PIECE):
                             if possiblePin == ():  # no piece blocking, so check

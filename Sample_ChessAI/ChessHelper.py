@@ -1,5 +1,5 @@
-from Sample_ChessAI.ChessEngine import GameState
-from Sample_ChessAI.ChessTypes import EMPTY_CELL, WHITE_PIECE_PREFIX, MoveTuple, BLACK_PIECE_PREFIX, PiecePosTuple, \
+from ChessEngine import GameState
+from ChessTypes import EMPTY_CELL, WHITE_PIECE_PREFIX, MoveTuple, BLACK_PIECE_PREFIX, PiecePosTuple, \
     KNIGHT_PIECE, QUEEN_PIECE, PAWN_PIECE, KING_PIECE, BISHOP_PIECE, ROOK_PIECE
 
 

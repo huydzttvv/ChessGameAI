@@ -7,8 +7,8 @@ import ChessAI
 import time
 import os
 
-from Sample_ChessAI.ChessHelper import ChessHelper
-from Sample_ChessAI.ChessTypes import BISHOP_PIECE, KNIGHT_PIECE, QUEEN_PIECE, ROOK_PIECE, WHITE_PIECE_PREFIX, \
+from ChessHelper import ChessHelper
+from ChessTypes import BISHOP_PIECE, KNIGHT_PIECE, QUEEN_PIECE, ROOK_PIECE, WHITE_PIECE_PREFIX, \
     BLACK_PIECE_PREFIX
 
 TIME = 48
@@ -126,10 +126,12 @@ def main(menu_mode: str = SCREEN_MODE, players_options: str = OUR_AI_WHITE):
     while isPlaying:
         time.sleep(0.2)
         start_time = time.time()
-        background = p.transform.scale(p.image.load("chessv2/menu.png"), (WIDTH, HEIGHT))
+        background = p.transform.scale(
+            p.image.load("chessv2/menu.png"), (WIDTH, HEIGHT))
         screen.blit(background, (0, 0))
         # If player 1 turn and white turn or player 2 turn and black turn
-        humanTurn = (gameState.whiteToMove and playerOne) or (not gameState.whiteToMove and playerTwo)
+        humanTurn = (gameState.whiteToMove and playerOne) or (
+            not gameState.whiteToMove and playerTwo)
         AIEasyTurn = (not gameState.whiteToMove and playerAI)
         for e in p.event.get():
             if e.type == p.QUIT:
@@ -160,7 +162,7 @@ def main(menu_mode: str = SCREEN_MODE, players_options: str = OUR_AI_WHITE):
                             playerAI = False
                             p1Time = p2Time = 1800
                             humanTurn = (gameState.whiteToMove and playerOne) or (
-                                    not gameState.whiteToMove and playerTwo)
+                                not gameState.whiteToMove and playerTwo)
                             drawGameState(screen, gameState,
                                           gameState.getValidMoves(), sqSelected)
                         # Start a new 2 player game
@@ -179,7 +181,7 @@ def main(menu_mode: str = SCREEN_MODE, players_options: str = OUR_AI_WHITE):
                             playerAI = False
                             p1Time = p2Time = 1800
                             humanTurn = (gameState.whiteToMove and playerOne) or (
-                                    not gameState.whiteToMove and playerTwo)
+                                not gameState.whiteToMove and playerTwo)
                             drawGameState(screen, gameState,
                                           gameState.getValidMoves(), sqSelected)
                         # Start a new none player game
@@ -341,9 +343,11 @@ def loadImages():
     for piece in pieces:
         # IMAGES[piece] = p.transform.scale(p.image.load("chessOri/" + piece + ".png"), (SQ_SIZE, SQ_SIZE))
         if COLORGAME:
-            IMAGES[piece] = p.transform.scale(p.image.load("chessOri2/" + piece + ".png"), (SQ_SIZE, SQ_SIZE))
+            IMAGES[piece] = p.transform.scale(p.image.load(
+                "chessOri2/" + piece + ".png"), (SQ_SIZE, SQ_SIZE))
         else:
-            IMAGES[piece] = p.transform.scale(p.image.load("chessOri/" + piece + ".png"), (SQ_SIZE, SQ_SIZE))
+            IMAGES[piece] = p.transform.scale(p.image.load(
+                "chessOri/" + piece + ".png"), (SQ_SIZE, SQ_SIZE))
 
         # IMAGES[piece + "l"] = p.transform.scale(p.image.load("images/" + piece + "l.png"), (SQ_SIZE, SQ_SIZE))
     for block in blocks:
@@ -416,11 +420,11 @@ def drawTime(screen, p1time, p2time, whiteToMove, gameOver):
         m1, s1 = divmod(p1time, 60)
         h1, m1 = divmod(m1, 60)
         timeLeftP1 = str(h1).zfill(2) + ":" + \
-                     str(m1).zfill(2) + ":" + str(s1).zfill(2)
+            str(m1).zfill(2) + ":" + str(s1).zfill(2)
         m2, s2 = divmod(p2time, 60)
         h2, m2 = divmod(m2, 60)
         timeLeftP2 = str(h2).zfill(2) + ":" + \
-                     str(m2).zfill(2) + ":" + str(s2).zfill(2)
+            str(m2).zfill(2) + ":" + str(s2).zfill(2)
 
         # Background color
         White = p.Color('#D9D2D2')
