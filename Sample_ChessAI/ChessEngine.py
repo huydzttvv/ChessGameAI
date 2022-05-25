@@ -89,11 +89,9 @@ KING_KNIGHT_VS_KING = {('bK', 'wN', 'wK'), ('wK', 'bN', 'bK')}
 KING_BISHOP_VS_KING_BISHOP = {('bK', 'bB', 'wB', 'wK')}
 
 
-
 class GameState:
     def __init__(self):
         # self.color = randint(0,1)
-
         self.board = [
             ['bR1', 'bN1', 'bB1', 'bQ', 'bK', 'bB2', 'bN2', 'bR2'],
             ['bp1', 'bp2', 'bp3', 'bp4', 'bp5', 'bp6', 'bp7', 'bp8'],
@@ -115,7 +113,8 @@ class GameState:
         self.pins = []
         self.checks = []
         self.promotionDone = True
-        self.enPassantPossible = ()  # coordinates for the square where en passant capture is possible
+        # coordinates for the square where en passant capture is possible
+        self.enPassantPossible = ()
         self.enPassantPossibleLog = [self.enPassantPossible]
         self.currentCastlingRight = CastleRights(True, True, True, True)
         self.castleRightsLog = [CastleRights(self.currentCastlingRight.wks, self.currentCastlingRight.bks,
@@ -448,6 +447,8 @@ class GameState:
                 self.blackKingLocation[0], self.blackKingLocation[1], moves)
         self.enPassantPossible = tempEnPassantPossible
         self.currentCastlingRight = tempCastleRights
+        print(f"Valid Moves ares: {moves}")
+
         return moves
 
     '''

@@ -4,7 +4,7 @@ import ChessEngine
 import ChessAI
 import time
 import sys
-
+from ChessTypes import *
 EASY_MODE = "EASY"
 MEDIUM_MODE = "MEDIUM"
 HARD_MODE = "HARD"
@@ -36,7 +36,6 @@ AILEVEL = True
 
 FISRTMOVE = True
 
-
 # COLORFLAG = False
 
 # boardreverse = [
@@ -48,6 +47,7 @@ FISRTMOVE = True
 #             ['--', '--', '--', '--', '--', '--', '--', '--'],
 #             ['bR', 'bN', 'bB', 'bQ', 'bK', 'bB', 'bN', 'bR'],
 #             ['bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp', 'bp']]
+
 
 def main(auto_mode=SCREEN_MODE, mode=EASY_MODE, player_option=OUR_AI_WHITE):
     p.init()
@@ -63,6 +63,10 @@ def main(auto_mode=SCREEN_MODE, mode=EASY_MODE, player_option=OUR_AI_WHITE):
     mode = mode
     player_option = player_option
     strategy = ChessAI.MIN_MAX_WITHOUT_PRUNING
+
+    # Machine Learning
+    from ChessML import ChessMachineLearning
+    chess_ml_engine = ChessMachineLearning(fresh_run=False)
     # In Menu:
     if auto_mode == SCREEN_MODE:
         while menuGame:
@@ -305,13 +309,13 @@ def main(auto_mode=SCREEN_MODE, mode=EASY_MODE, player_option=OUR_AI_WHITE):
             # Opponent AI
             strategy_to_use = ChessAI.MIN_MAX_WITHOUT_PRUNING
             if AIEasyTurn:
-                move = ChessAI.move_with_strategy(gs=gameState, depth=1, strategy=strategy_to_use,
+                move = ChessAI.move_with_strategy(gs=gameState, depth=0, strategy=strategy_to_use,
                                                   validMoves=validMoves)
                 # time.sleep(0.5)
             # Our AI Agent
             elif not AIEasyTurn:
                 move = ChessAI.move_with_strategy(
-                    gameState, depth, strategy_to_use, validMoves)
+                    gameState, depth, strategy=ChessAI.NAIVE_BAYES_ML, validMoves=validMoves, chess_ml_engine=chess_ml_engine)
 
             # if AIEasyTurn:
             #     move = ChessAIEasy.findBestMoveMinMax(gameState, validMoves)
